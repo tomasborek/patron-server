@@ -1,0 +1,120 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User{
+  id        String      @id @default(uuid())
+  name      String?
+  email     String   @unique
+  password  String?
+  createdAt DateTime @default(now())
+  role     Role     @default(USER)
+  active   Boolean   @default(false)
+  verified Boolean   @default(false)
+  deleted  Boolean @default(false)
+  verificationToken VerificationToken?
+  userInstitutions UserInstitution[]
+  logs    Log[]
+}
+
+model VerificationToken{
+  id        String      @id @default(uuid())
+  createdAt DateTime @default(now())
+  user      User @relation(fields: [userId], references: [id])
+  userId    String @unique
+  token     Int
+
+}
+
+model Institution{
+  id        String      @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+  deleted  Boolean @default(false)
+  users    UserInstitution[]
+  stations Station[]
+  logs    Log[]
+}
+
+model UserInstitution{
+  id           String      @id @default(uuid())
+  user          User        @relation(fields: [userId], references: [id])
+  userId        String
+  institution   Institution @relation(fields: [institutionId], references: [id])
+  institutionId String
+  createdAt     DateTime @default(now())
+  role         InstitutionRole     @default(USER)
+  code        String? @unique
+  logs   Log[]
+}
+
+
+model Station{
+  id        String      @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+  institution  Institution @relation(fields: [institutionId], references: [id])
+  institutionId String
+  deleted  Boolean @default(false)
+  boxes   Box[]
+  logs    Log[]
+}
+
+model Box{
+  id        String      @id @default(uuid())
+  localId   Int
+  station   Station @relation(fields: [stationId], references: [id])
+  stationId String
+  deleted Boolean @default(false)
+  createdAt DateTime @default(now())
+  state    BoxState @default(DEFAULT)
+  logs    Log[]
+}
+
+model Log{
+  id        String      @id @default(uuid())
+  createdAt DateTime @default(now())
+  box       Box @relation(fields: [boxId], references: [id])
+  boxId     String
+  station   Station @relation(fields: [stationId], references: [id])
+  stationId String
+  user      User @relation(fields: [userId], references: [id])
+  userId    String
+  institution   Institution @relation(fields: [institutionId], references: [id])
+  institutionId String
+  userInstitution   UserInstitution @relation(fields: [userInstitutionId], references: [id])
+  userInstitutionId String
+  action   LogAction
+}
+
+
+enum BoxState{
+  DEFAULT
+  EMPTY
+  OPEN
+  DISABLED
+}
+
+enum Role{
+  DEVELOPER
+  USER
+}
+
+enum InstitutionRole{
+  ADMIN
+  USER
+}
+
+enum LogAction{
+  OPEN
+  RETURN
+  PHOTO
+  JOIN
+  LEAVE
+  DISABLECODE
+}
