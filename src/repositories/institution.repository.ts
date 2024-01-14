@@ -1,5 +1,9 @@
-import { InstitutionCreate } from '@/webserver/validators/institution.validator';
-import IInstitutionRepository from './common/IListingRepository';
+import {
+  InstitutionCreate,
+  InstitutionCreateStation,
+  InstitutionGetMany,
+} from '@/webserver/validators/institution.validator';
+import IInstitutionRepository from './common/IInstitutionRepository';
 import { PrismaClient } from '@prisma/client';
 import { UserInstitutionRole } from '@/domain/entities/enums';
 
@@ -10,13 +14,18 @@ export default class InstitutionRepository implements IInstitutionRepository {
       data: { ...data },
     });
   };
-  addUser = async (
-    institutionId: string,
-    userId: string,
-    role: UserInstitutionRole
-  ) => {
+  addUser = async (institutionId: string, userId: string, role: UserInstitutionRole, code: string) => {
     await this.db.userInstitution.create({
-      data: { userId, institutionId, role },
+      data: { userId, institutionId, role, code },
+    });
+  };
+  getMany = (query: InstitutionGetMany) => {
+    return this.db.institution.findMany({
+      where: {
+        name: { contains: query.name },
+      },
+      skip: query.page ? (query.page - 1) * 10 : 0,
+      take: 10,
     });
   };
   getById = (id: string) => {
@@ -30,5 +39,13 @@ export default class InstitutionRepository implements IInstitutionRepository {
         })
       ).length > 0
     );
+  };
+  getAllCodes = async (institutionId: string) => {
+    return (await this.db.userInstitution.findMany({ where: { institutionId } })).map((ui) => ui.code);
+  };
+  createStation = async (data: InstitutionCreateStation, institutionId: string) => {
+    return this.db.station.create({
+      data: { name: data.name, institutionId },
+    });
   };
 }

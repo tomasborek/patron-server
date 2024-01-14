@@ -13,19 +13,18 @@ import UserController from '../controllers/user.controller';
 import InstitutionController from '../controllers/institution.controller';
 import InstitutionRouter from '../routes/institution.router';
 import EmailObserver from '@/observers/email.observer';
+import BoxRepository from '@/repositories/box.repository';
 
 const db = Database.getInstance().getClient();
 
 //repositories
 const userRepository = new UserRepository(db);
 const institutionRepository = new InstitutionRepository(db);
+const boxRepository = new BoxRepository(db);
 
 //usecases
-const userUsecase = new UserUsecase(userRepository, institutionRepository);
-const institutionUsecase = new InstitutionUsecase(
-  institutionRepository,
-  userRepository
-);
+const userUsecase = new UserUsecase(userRepository, institutionRepository, boxRepository);
+const institutionUsecase = new InstitutionUsecase(institutionRepository, userRepository, boxRepository);
 
 //observers
 const emailObserver = new EmailObserver(userRepository);
@@ -44,6 +43,4 @@ export const validate = new ValidateMiddlewareFactory().getMiddleware();
 
 //routers
 export const userRouter = new UserRouter(userController).getRouter();
-export const institutionRouter = new InstitutionRouter(
-  institutionController
-).getRouter();
+export const institutionRouter = new InstitutionRouter(institutionController).getRouter();

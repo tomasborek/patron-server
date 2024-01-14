@@ -7,17 +7,12 @@ export default class InstitutionRouter {
   constructor(private controller: IInstitutionController) {}
   getRouter() {
     return Router()
+      .post('/', developer, validate(institutionValidator.create), controller(this.controller.create))
+      .post('/:institutionId/user', auth, validate(institutionValidator.addUser), controller(this.controller.addUser))
       .post(
-        '/',
-        developer,
-        validate(institutionValidator.create),
-        controller(this.controller.create)
-      )
-      .post(
-        '/:institutionId/user',
-        auth,
-        validate(institutionValidator.addUser),
-        controller(this.controller.addUser)
+        '/:institutionId/station',
+        validate(institutionValidator.createStation),
+        controller(this.controller.createStation),
       );
   }
 }

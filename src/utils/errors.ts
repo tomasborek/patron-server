@@ -41,3 +41,9 @@ export class AlreadyExistsError extends HttpError {
     super(409, message || 'Already exists');
   }
 }
+
+export class ServerError extends HttpError {
+  constructor(message?: string) {
+    super(500, message || 'Server error');
+  }
+}
