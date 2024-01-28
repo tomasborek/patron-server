@@ -23,3 +23,11 @@ export interface IMeDTO {
     code: string;
   }[];
 }
+
+export interface IToken {
+  id: string;
+  token: number;
+  createdAt: Date;
+  userId: string;
+  valid: boolean;
+}

@@ -15,9 +15,11 @@ export default class UserRepository implements IUserRepository {
       },
     });
   };
+
   getById = (id: string) => {
     return this.db.user.findUnique({ where: { id } });
   };
+
   getMe = async (id: string) => {
     const me = await this.db.user.findUnique({
       where: { id },
@@ -52,6 +54,7 @@ export default class UserRepository implements IUserRepository {
   getByEmail = (email: string) => {
     return this.db.user.findUnique({ where: { email } });
   };
+
   isInInstitution = async (userId: string, institutionId: string) => {
     const user = await this.db.user.findUnique({
       where: { id: userId },
@@ -60,6 +63,7 @@ export default class UserRepository implements IUserRepository {
     if (!user) return false;
     return user.userInstitutions.some((ui) => ui.institutionId === institutionId);
   };
+
   getPassword = async (id: string) => {
     return (
       (
@@ -70,41 +74,34 @@ export default class UserRepository implements IUserRepository {
       )?.password ?? null
     );
   };
-  activate = async (id: string) => {
+
+  activate = async (id: string, password: string) => {
     await this.db.user.update({
       where: { id },
-      data: { active: true },
+      data: { active: true, password },
     });
   };
-  setPassword = (id: string, password: string) => {
-    return this.db.user.update({
-      where: { id },
-      data: { password },
-    });
-  };
+
   createToken = async (id: string) => {
     const token = Math.floor(100000 + Math.random() * 900000);
-    await this.db.verificationToken.create({
+    return this.db.verificationToken.create({
       data: { token, userId: id },
     });
-    return token;
   };
+
   getToken = async (id: string) => {
-    return (
-      (
-        await this.db.verificationToken.findUnique({
-          where: { userId: id },
-          select: { token: true },
-        })
-      )?.token ?? null
-    );
+    return this.db.verificationToken.findUnique({
+      where: { id },
+    });
   };
+
   verify = async (id: string) => {
     await this.db.user.update({
       where: { id },
       data: { verified: true },
     });
   };
+
   getReservations = async (userId: string) => {
     const reservations = await this.db.reservation.findMany({
       where: { userId },
@@ -131,6 +128,7 @@ export default class UserRepository implements IUserRepository {
         },
       },
     });
+
     return reservations.map((r) => ({
       id: r.id,
       createdAt: r.createdAt,
@@ -148,6 +146,7 @@ export default class UserRepository implements IUserRepository {
       },
     }));
   };
+
   createReservation = async (data: ReservationCreate, userId: string) => {
     await this.db.reservation.create({
       data: {

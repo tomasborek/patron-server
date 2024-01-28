@@ -1,6 +1,6 @@
-import { IUserAddedToInstitutionEvent, IUserActivated } from './events/user';
+import { IUserAddedToInstitutionEvent, IUserActivatedEvent } from './events/user';
 
-export type EventData = IUserActivated | IUserAddedToInstitutionEvent;
+export type EventData = IUserActivatedEvent | IUserAddedToInstitutionEvent;
 
 export interface IObserver {
   update: (data: EventData) => void;

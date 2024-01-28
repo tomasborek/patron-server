@@ -23,12 +23,13 @@ const institutionRepository = new InstitutionRepository(db);
 const boxRepository = new BoxRepository(db);
 
 //usecases
-const userUsecase = new UserUsecase(userRepository, institutionRepository, boxRepository);
+const userUsecase = new UserUsecase(userRepository, boxRepository);
 const institutionUsecase = new InstitutionUsecase(institutionRepository, userRepository, boxRepository);
 
 //observers
 const emailObserver = new EmailObserver(userRepository);
 userUsecase.subscribe(emailObserver);
+institutionUsecase.subscribe(emailObserver);
 
 //controllers
 const userController = new UserController(userUsecase);

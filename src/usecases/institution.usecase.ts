@@ -22,9 +22,9 @@ export default class InstitutionUsecase extends Publisher implements IInstitutio
   };
   addUser = async (institutionId: string, email: string, role: UserInstitutionRole, adminId: string) => {
     const institution = await this.institutionRepository.getById(institutionId);
-    if (!institution) throw new NotFoundError();
+    if (!institution) throw new NotFoundError('Institution not found');
     const admin = await this.userRepository.getById(adminId);
-    if (!admin) throw new NotFoundError();
+    if (!admin) throw new NotFoundError('Admin not found');
     if (!(await this.institutionRepository.isAdmin(admin.id, institutionId)) && admin.role !== 'DEVELOPER')
       throw new ForbiddenError();
     let existingUser;

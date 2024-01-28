@@ -29,6 +29,7 @@ model VerificationToken{
   user      User @relation(fields: [userId], references: [id])
   userId    String @unique
   token     Int
+  valid     Boolean @default(true)
 
 }
 

@@ -12,6 +12,8 @@ export default class UserRouter {
       .post('/auth', validate(userValidator.auth), controller(this.controller.auth))
       .get('/me', auth, controller(this.controller.getMe))
       .get('/reservation', auth, controller(this.controller.getReservations))
-      .post('/reservation', auth, validate(reservationValidator.create), controller(this.controller.createReservation));
+      .post('/reservation', auth, validate(reservationValidator.create), controller(this.controller.createReservation))
+      .post('/activate', validate(userValidator.activate), controller(this.controller.activate))
+      .post('/verify/:tokenId', validate(userValidator.verify), controller(this.controller.verify));
   }
 }

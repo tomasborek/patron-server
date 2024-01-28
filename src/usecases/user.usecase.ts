@@ -1,6 +1,5 @@
 import IUserRepository from '@/repositories/common/IUserRepository';
 import IUserUsecase from './common/IUserUsecase';
-import IInstitutionRepository from '@/repositories/common/IInstitutionRepository';
 import { BadRequestError, ForbiddenError, NotFoundError, ServerError } from '@/utils/errors';
 import Publisher from '@/observers/publisher';
 import { hash } from '@/utils/hash';
@@ -10,11 +9,7 @@ import IBoxRepository from '@/repositories/common/IBoxRepository';
 import { ReservationCreate } from '@/webserver/validators/reservation.validator';
 
 export default class UserUsecase extends Publisher implements IUserUsecase {
-  constructor(
-    private userRepository: IUserRepository,
-    private institutionRepository: IInstitutionRepository,
-    private boxRepository: IBoxRepository,
-  ) {
+  constructor(private userRepository: IUserRepository, private boxRepository: IBoxRepository) {
     super();
   }
 
@@ -30,21 +25,33 @@ export default class UserUsecase extends Publisher implements IUserUsecase {
   auth = async (email: string, password: string) => {
     const user = await this.userRepository.getByEmail(email);
     if (!user) throw new NotFoundError();
-    if (!user.active) {
-      await this.userRepository.activate(user.id);
-      const hashedPassword = await hash(password);
-      await this.userRepository.setPassword(user.id, hashedPassword);
-      this.notify({ event: 'user-activated', data: { user } });
-    } else {
-      const match = await compare(password, user.password ?? '');
-      if (!match) throw new ForbiddenError();
-    }
+    const match = await compare(password, user.password ?? '');
+    if (!match) throw new ForbiddenError();
     const token = signToken({ id: user.id, role: user.role });
     return token;
   };
+
+  activate = async (email: string, password: string) => {
+    const user = await this.userRepository.getByEmail(email);
+    if (!user) throw new NotFoundError();
+    const hashedPassword = await hash(password);
+    await this.userRepository.activate(user.id, hashedPassword);
+    const token = await this.userRepository.createToken(user.id);
+    this.notify({ event: 'user-activated', data: { user, token: token.token } });
+    return token.id;
+  };
+
+  verify = async (tokenId: string, code: number) => {
+    const token = await this.userRepository.getToken(tokenId);
+    if (!token) throw new ForbiddenError();
+    if (token.token !== code) throw new ForbiddenError();
+    await this.userRepository.verify(token.userId);
+  };
+
   getReservations = (id: string) => {
     return this.userRepository.getReservations(id);
   };
+
   createReservation = async (data: ReservationCreate, userId: string) => {
     const box = await this.boxRepository.getById(data.boxId);
     if (!box) throw new NotFoundError();

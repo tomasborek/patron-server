@@ -14,6 +14,14 @@ export default class UserController implements IUserController {
     const token = await this.userUsecase.auth(email, password);
     return new CreatedResponse({ res, data: { token } }).send();
   };
+  activate = async (req: Request, res: Response) => {
+    const tokenId = await this.userUsecase.activate(req.body.email, req.body.password);
+    return new SuccessResponse({ res, data: { tokenId } }).send();
+  };
+  verify = async (req: Request, res: Response) => {
+    await this.userUsecase.verify(req.params.tokenId, req.body.code);
+    return new SuccessResponse({ res }).send();
+  };
   getReservations = async (req: Request, res: Response) => {
     const reservations = await this.userUsecase.getReservations(req.user!.id);
     return new SuccessResponse({ res, data: { reservations } }).send();
