@@ -1,7 +1,6 @@
 import { UserInstitutionRole } from '@/domain/entities/enums';
 import { IUserReservationDTO } from '@/domain/entities/reservation.entity';
 import type { IMeDTO, IToken, IUser } from '@/domain/entities/user.entity';
-import { ReservationCreate } from '@/webserver/validators/reservation.validator';
 
 interface IUserRepository {
   create: (email: string, institutionId: string, role: UserInstitutionRole, code: string) => Promise<IUser>;
@@ -15,7 +14,6 @@ interface IUserRepository {
   getToken: (id: string) => Promise<IToken | null>;
   verify: (id: string) => Promise<void>;
   getReservations: (id: string) => Promise<IUserReservationDTO[]>;
-  createReservation: (data: ReservationCreate, userId: string) => Promise<void>;
 }
 
 export default IUserRepository;

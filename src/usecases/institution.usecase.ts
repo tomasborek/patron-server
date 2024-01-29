@@ -7,6 +7,7 @@ import { NotFoundError } from '@/utils/errors';
 import IUserRepository from '@/repositories/common/IUserRepository';
 import Publisher from '@/observers/publisher';
 import IBoxRepository from '@/repositories/common/IBoxRepository';
+import { IStation } from '@/domain/entities/station.entity';
 
 export default class InstitutionUsecase extends Publisher implements IInstitutionUsecase {
   constructor(
@@ -42,6 +43,12 @@ export default class InstitutionUsecase extends Publisher implements IInstitutio
       event: 'user-added-to-institution',
       data: { user: existingUser, institution },
     });
+  };
+  getStations = async (institutionId: string, userId: string) => {
+    const institution = await this.institutionRepository.getById(institutionId);
+    if (!institution) throw new NotFoundError('Institution not found');
+    if (!(await this.userRepository.isInInstitution(userId, institutionId))) throw new ForbiddenError();
+    return this.institutionRepository.getStations(institutionId);
   };
   generateCode = async (institutionId: string) => {
     const codes = await this.institutionRepository.getAllCodes(institutionId);

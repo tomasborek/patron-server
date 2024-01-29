@@ -5,7 +5,6 @@ interface IUserController {
   activate: (req: Request, res: Response) => Promise<void>;
   verify: (req: Request, res: Response) => Promise<void>;
   getReservations: (req: Request, res: Response) => Promise<void>;
-  createReservation: (req: Request, res: Response) => Promise<void>;
 }
 
 export default IUserController;

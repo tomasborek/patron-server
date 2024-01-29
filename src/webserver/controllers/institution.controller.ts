@@ -14,6 +14,10 @@ export default class InstitutionController implements IInstitutionController {
 
     return new SuccessResponse({ res }).send();
   };
+  getStations = async (req: Request, res: Response) => {
+    const stations = await this.institutionUsecase.getStations(req.params.institutionId, req.user!.id);
+    return new SuccessResponse({ res, data: { stations } }).send();
+  };
   createStation = async (req: Request, res: Response) => {
     await this.institutionUsecase.createStation(req.body, req.params.institutionId);
     return new SuccessResponse({ res }).send();

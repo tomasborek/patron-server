@@ -1,7 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import IUserRepository from './common/IUserRepository';
 import { UserInstitutionRole } from '@/domain/entities/enums';
-import { ReservationCreate } from '@/webserver/validators/reservation.validator';
 
 export default class UserRepository implements IUserRepository {
   constructor(private db: PrismaClient) {}
@@ -145,14 +144,5 @@ export default class UserRepository implements IUserRepository {
         },
       },
     }));
-  };
-
-  createReservation = async (data: ReservationCreate, userId: string) => {
-    await this.db.reservation.create({
-      data: {
-        userId,
-        boxId: data.boxId,
-      },
-    });
   };
 }

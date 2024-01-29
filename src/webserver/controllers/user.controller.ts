@@ -26,8 +26,4 @@ export default class UserController implements IUserController {
     const reservations = await this.userUsecase.getReservations(req.user!.id);
     return new SuccessResponse({ res, data: { reservations } }).send();
   };
-  createReservation = async (req: Request, res: Response) => {
-    await this.userUsecase.createReservation(req.body, req.user!.id);
-    return new SuccessResponse({ res }).send();
-  };
 }

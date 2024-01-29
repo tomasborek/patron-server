@@ -9,6 +9,7 @@ export default class InstitutionRouter {
     return Router()
       .post('/', developer, validate(institutionValidator.create), controller(this.controller.create))
       .post('/:institutionId/user', auth, validate(institutionValidator.addUser), controller(this.controller.addUser))
+      .get('/:institutionId/station', auth, controller(this.controller.getStations))
       .post(
         '/:institutionId/station',
         validate(institutionValidator.createStation),

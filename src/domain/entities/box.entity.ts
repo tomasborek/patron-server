@@ -8,3 +8,7 @@ export interface IBox {
   createdAt: Date;
   state: BoxState;
 }
+
+export interface IBoxDTO extends IBox {
+  reserved: boolean;
+}

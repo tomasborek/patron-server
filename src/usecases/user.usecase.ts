@@ -6,7 +6,6 @@ import { hash } from '@/utils/hash';
 import { compare } from 'bcrypt';
 import { signToken } from '@/utils/jwt';
 import IBoxRepository from '@/repositories/common/IBoxRepository';
-import { ReservationCreate } from '@/webserver/validators/reservation.validator';
 
 export default class UserUsecase extends Publisher implements IUserUsecase {
   constructor(private userRepository: IUserRepository, private boxRepository: IBoxRepository) {
@@ -50,14 +49,5 @@ export default class UserUsecase extends Publisher implements IUserUsecase {
 
   getReservations = (id: string) => {
     return this.userRepository.getReservations(id);
-  };
-
-  createReservation = async (data: ReservationCreate, userId: string) => {
-    const box = await this.boxRepository.getById(data.boxId);
-    if (!box) throw new NotFoundError();
-    if (box.state !== 'DEFAULT') throw new BadRequestError('Box is not available');
-    const canReserve = await this.boxRepository.canReserve(box.id, userId);
-    if (!canReserve) throw new ForbiddenError('You cannot reserve this box');
-    await this.userRepository.createReservation(data, userId);
   };
 }

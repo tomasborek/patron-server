@@ -6,6 +6,7 @@ import {
 import IInstitutionRepository from './common/IInstitutionRepository';
 import { PrismaClient } from '@prisma/client';
 import { UserInstitutionRole } from '@/domain/entities/enums';
+import moment from 'moment';
 
 export default class InstitutionRepository implements IInstitutionRepository {
   constructor(private db: PrismaClient) {}
@@ -27,6 +28,27 @@ export default class InstitutionRepository implements IInstitutionRepository {
       skip: query.page ? (query.page - 1) * 10 : 0,
       take: 10,
     });
+  };
+  getStations = async (institutionId: string) => {
+    const stations = await this.db.station.findMany({
+      where: { institutionId },
+      include: {
+        boxes: { include: { reservations: { where: { createdAt: { gte: moment().subtract(24, 'h').toDate() } } } } },
+      },
+    });
+
+    return stations.map((station) => ({
+      ...station,
+      boxes: station.boxes.map((box) => ({
+        id: box.id,
+        localId: box.localId,
+        stationId: box.stationId,
+        deleted: box.deleted,
+        createdAt: box.createdAt,
+        state: box.state,
+        reserved: !!box.reservations.length,
+      })),
+    }));
   };
   getById = (id: string) => {
     return this.db.institution.findUnique({ where: { id } });
