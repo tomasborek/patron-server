@@ -27,7 +27,7 @@ export default class BoxRepository implements IBoxRepository {
   };
   isReserved = async (id: string) => {
     return !!(await this.db.reservation.findFirst({
-      where: { boxId: id, createdAt: { gte: moment().subtract(24, 'h').toDate() } },
+      where: { boxId: id, cancelled: false, createdAt: { gte: moment().subtract(24, 'h').toDate() } },
     }));
   };
   createReservation = async (boxId: string, userId: string) => {

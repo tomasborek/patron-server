@@ -103,7 +103,7 @@ export default class UserRepository implements IUserRepository {
 
   getReservations = async (userId: string) => {
     const reservations = await this.db.reservation.findMany({
-      where: { userId },
+      where: { userId, cancelled: false },
       select: {
         id: true,
         createdAt: true,

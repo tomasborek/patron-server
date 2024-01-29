@@ -33,7 +33,11 @@ export default class InstitutionRepository implements IInstitutionRepository {
     const stations = await this.db.station.findMany({
       where: { institutionId },
       include: {
-        boxes: { include: { reservations: { where: { createdAt: { gte: moment().subtract(24, 'h').toDate() } } } } },
+        boxes: {
+          include: {
+            reservations: { where: { cancelled: false, createdAt: { gte: moment().subtract(24, 'h').toDate() } } },
+          },
+        },
       },
     });
 

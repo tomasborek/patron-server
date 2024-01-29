@@ -14,3 +14,11 @@ export interface IUserReservationDTO {
     };
   };
 }
+
+export interface IReservation {
+  id: string;
+  createdAt: Date;
+  boxId: string;
+  userId: string;
+  cancelled: boolean;
+}

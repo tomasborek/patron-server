@@ -17,6 +17,10 @@ import BoxRepository from '@/repositories/box.repository';
 import BoxUsecase from '@/usecases/box.usecase';
 import BoxController from '../controllers/box.controller';
 import BoxRouterFactory from '../routes/box.router';
+import ReservationRouterFactory from '../routes/reservation.router';
+import ReservationController from '../controllers/reservation.controller';
+import ReservationUsecase from '@/usecases/reservation.usecase';
+import ReservationRepository from '@/repositories/reservation.repository';
 
 const db = Database.getInstance().getClient();
 
@@ -24,11 +28,13 @@ const db = Database.getInstance().getClient();
 const userRepository = new UserRepository(db);
 const institutionRepository = new InstitutionRepository(db);
 const boxRepository = new BoxRepository(db);
+const reservationRepository = new ReservationRepository(db);
 
 //usecases
 const userUsecase = new UserUsecase(userRepository, boxRepository);
 const institutionUsecase = new InstitutionUsecase(institutionRepository, userRepository, boxRepository);
 const boxUsecase = new BoxUsecase(boxRepository);
+const reservationUsecase = new ReservationUsecase(reservationRepository);
 
 //observers
 const emailObserver = new EmailObserver(userRepository);
@@ -39,6 +45,7 @@ institutionUsecase.subscribe(emailObserver);
 const userController = new UserController(userUsecase);
 const institutionController = new InstitutionController(institutionUsecase);
 const boxController = new BoxController(boxUsecase);
+const reservationController = new ReservationController(reservationUsecase);
 
 //middleware
 export const auth = new AuthMiddlewareFactory(userRepository).getMiddleware();
@@ -51,3 +58,4 @@ export const validate = new ValidateMiddlewareFactory().getMiddleware();
 export const userRouter = new UserRouter(userController).getRouter();
 export const institutionRouter = new InstitutionRouter(institutionController).getRouter();
 export const boxRouter = new BoxRouterFactory(boxController).getRouter();
+export const reservationRouter = new ReservationRouterFactory(reservationController).getRouter();

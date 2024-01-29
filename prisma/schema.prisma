@@ -86,6 +86,8 @@ model Reservation{
   boxId     String
   user      User @relation(fields: [userId], references: [id])
   userId    String
+  cancelled Boolean @default(false)
+  cancelledAt DateTime?
 }
 
 model Log{
