@@ -21,6 +21,8 @@ import ReservationRouterFactory from '../routes/reservation.router';
 import ReservationController from '../controllers/reservation.controller';
 import ReservationUsecase from '@/usecases/reservation.usecase';
 import ReservationRepository from '@/repositories/reservation.repository';
+import LogRepository from '@/repositories/log.repository';
+import LogObserver from '@/observers/log.observer';
 
 const db = Database.getInstance().getClient();
 
@@ -29,17 +31,23 @@ const userRepository = new UserRepository(db);
 const institutionRepository = new InstitutionRepository(db);
 const boxRepository = new BoxRepository(db);
 const reservationRepository = new ReservationRepository(db);
+const logRepository = new LogRepository(db);
 
 //usecases
 const userUsecase = new UserUsecase(userRepository, boxRepository);
 const institutionUsecase = new InstitutionUsecase(institutionRepository, userRepository, boxRepository);
-const boxUsecase = new BoxUsecase(boxRepository);
+const boxUsecase = new BoxUsecase(boxRepository, reservationRepository);
 const reservationUsecase = new ReservationUsecase(reservationRepository);
 
 //observers
 const emailObserver = new EmailObserver(userRepository);
+const logObserver = new LogObserver(logRepository);
 userUsecase.subscribe(emailObserver);
 institutionUsecase.subscribe(emailObserver);
+userUsecase.subscribe(logObserver);
+institutionUsecase.subscribe(logObserver);
+boxUsecase.subscribe(logObserver);
+reservationUsecase.subscribe(logObserver);
 
 //controllers
 const userController = new UserController(userUsecase);

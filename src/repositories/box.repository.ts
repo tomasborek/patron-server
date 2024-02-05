@@ -31,7 +31,7 @@ export default class BoxRepository implements IBoxRepository {
     }));
   };
   createReservation = async (boxId: string, userId: string) => {
-    await this.db.reservation.create({
+    return this.db.reservation.create({
       data: { boxId, userId },
     });
   };

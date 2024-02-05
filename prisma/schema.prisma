@@ -93,16 +93,16 @@ model Reservation{
 model Log{
   id        String      @id @default(uuid())
   createdAt DateTime @default(now())
-  box       Box @relation(fields: [boxId], references: [id])
-  boxId     String
-  station   Station @relation(fields: [stationId], references: [id])
-  stationId String
-  user      User @relation(fields: [userId], references: [id])
-  userId    String
-  institution   Institution @relation(fields: [institutionId], references: [id])
-  institutionId String
-  userInstitution   UserInstitution @relation(fields: [userInstitutionId], references: [id])
-  userInstitutionId String
+  box       Box? @relation(fields: [boxId], references: [id])
+  boxId     String?
+  station   Station? @relation(fields: [stationId], references: [id])
+  stationId String?
+  user      User? @relation(fields: [userId], references: [id])
+  userId    String?
+  institution   Institution? @relation(fields: [institutionId], references: [id])
+  institutionId String?
+  userInstitution   UserInstitution? @relation(fields: [userInstitutionId], references: [id])
+  userInstitutionId String?
   action   LogAction
 }
 
@@ -130,7 +130,8 @@ enum LogAction{
   OPEN
   RETURN
   PHOTO
-  JOIN
-  LEAVE
+  ADD
+  REMOVE
   DISABLECODE
+  ACTIVATE
 }

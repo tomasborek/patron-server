@@ -22,3 +22,15 @@ export interface IReservation {
   userId: string;
   cancelled: boolean;
 }
+
+export interface IReservationLogData extends IReservation {
+  box: {
+    id: string;
+    station: {
+      id: string;
+      institution: {
+        id: string;
+      };
+    };
+  };
+}
