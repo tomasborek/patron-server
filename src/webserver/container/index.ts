@@ -23,6 +23,9 @@ import ReservationUsecase from '@/usecases/reservation.usecase';
 import ReservationRepository from '@/repositories/reservation.repository';
 import LogRepository from '@/repositories/log.repository';
 import LogObserver from '@/observers/log.observer';
+import LogUsecase from '@/usecases/log.usecase';
+import LogController from '../controllers/log.controller';
+import LogRouterFactory from '../routes/log.router';
 
 const db = Database.getInstance().getClient();
 
@@ -38,6 +41,7 @@ const userUsecase = new UserUsecase(userRepository, boxRepository);
 const institutionUsecase = new InstitutionUsecase(institutionRepository, userRepository, boxRepository);
 const boxUsecase = new BoxUsecase(boxRepository, reservationRepository);
 const reservationUsecase = new ReservationUsecase(reservationRepository);
+const logUsecase = new LogUsecase(logRepository, institutionRepository);
 
 //observers
 const emailObserver = new EmailObserver(userRepository);
@@ -54,6 +58,7 @@ const userController = new UserController(userUsecase);
 const institutionController = new InstitutionController(institutionUsecase);
 const boxController = new BoxController(boxUsecase);
 const reservationController = new ReservationController(reservationUsecase);
+const logController = new LogController(logUsecase);
 
 //middleware
 export const auth = new AuthMiddlewareFactory(userRepository).getMiddleware();
@@ -67,3 +72,4 @@ export const userRouter = new UserRouter(userController).getRouter();
 export const institutionRouter = new InstitutionRouter(institutionController).getRouter();
 export const boxRouter = new BoxRouterFactory(boxController).getRouter();
 export const reservationRouter = new ReservationRouterFactory(reservationController).getRouter();
+export const logRouter = new LogRouterFactory(logController).getRouter();

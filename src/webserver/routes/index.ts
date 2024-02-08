@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
-import { boxRouter, institutionRouter, reservationRouter, trim, userRouter } from '../container';
+import { boxRouter, institutionRouter, logRouter, reservationRouter, trim, userRouter } from '../container';
 
 export default Router()
   .use(trim)
@@ -8,6 +8,7 @@ export default Router()
   .use('/institution', institutionRouter)
   .use('/box', boxRouter)
   .use('/reservation', reservationRouter)
+  .use('/log', logRouter)
   .get('/health', (req: Request, res: Response) => {
     res.status(200).json({ status: 'OK' });
   })
