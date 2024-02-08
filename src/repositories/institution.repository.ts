@@ -35,8 +35,11 @@ export default class InstitutionRepository implements IInstitutionRepository {
       include: {
         boxes: {
           include: {
-            reservations: { where: { cancelled: false, createdAt: { gte: moment().subtract(24, 'h').toDate() } } },
+            reservations: {
+              where: { cancelled: false, completed: false, createdAt: { gte: moment().subtract(24, 'h').toDate() } },
+            },
           },
+          orderBy: { localId: 'asc' },
         },
       },
     });

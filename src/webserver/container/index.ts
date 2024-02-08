@@ -26,6 +26,8 @@ import LogObserver from '@/observers/log.observer';
 import LogUsecase from '@/usecases/log.usecase';
 import LogController from '../controllers/log.controller';
 import LogRouterFactory from '../routes/log.router';
+import StationUsecase from '@/usecases/station.usecase';
+import StationRepository from '@/repositories/station.repository';
 
 const db = Database.getInstance().getClient();
 
@@ -35,6 +37,7 @@ const institutionRepository = new InstitutionRepository(db);
 const boxRepository = new BoxRepository(db);
 const reservationRepository = new ReservationRepository(db);
 const logRepository = new LogRepository(db);
+const stationRepository = new StationRepository(db);
 
 //usecases
 const userUsecase = new UserUsecase(userRepository, boxRepository);
@@ -42,6 +45,12 @@ const institutionUsecase = new InstitutionUsecase(institutionRepository, userRep
 const boxUsecase = new BoxUsecase(boxRepository, reservationRepository);
 const reservationUsecase = new ReservationUsecase(reservationRepository);
 const logUsecase = new LogUsecase(logRepository, institutionRepository);
+export const stationUsecase = new StationUsecase(
+  stationRepository,
+  userRepository,
+  reservationRepository,
+  boxRepository,
+);
 
 //observers
 const emailObserver = new EmailObserver(userRepository);

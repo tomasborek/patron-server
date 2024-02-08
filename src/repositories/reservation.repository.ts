@@ -11,7 +11,7 @@ export default class ReservationRepository implements IReservationRepository {
 
   isActive = async (id: string) => {
     return !!(await this.db.reservation.findUnique({
-      where: { id, cancelled: false, createdAt: { gte: moment().subtract(24, 'h').toDate() } },
+      where: { id, cancelled: false, completed: false, createdAt: { gte: moment().subtract(24, 'h').toDate() } },
     }));
   };
   getLogData = async (id: string) => {
@@ -26,6 +26,22 @@ export default class ReservationRepository implements IReservationRepository {
     await this.db.reservation.update({
       where: { id },
       data: { cancelled: true, cancelledAt: new Date() },
+    });
+  };
+
+  complete = async (id: string) => {
+    await this.db.reservation.update({
+      where: { id },
+      data: { completed: true },
+    });
+  };
+
+  getByUserId = async (userId: string) => {
+    return this.db.reservation.findFirst({
+      where: { userId, cancelled: false, completed: false, createdAt: { gte: moment().subtract(24, 'h').toDate() } },
+      include: {
+        box: true,
+      },
     });
   };
 }

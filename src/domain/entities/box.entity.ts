@@ -12,3 +12,9 @@ export interface IBox {
 export interface IBoxDTO extends IBox {
   reserved: boolean;
 }
+
+export interface ISimpleBox {
+  id: string;
+  localId: number;
+  state: BoxState;
+}

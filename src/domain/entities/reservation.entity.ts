@@ -1,3 +1,5 @@
+import { IBox } from './box.entity';
+
 export interface IUserReservationDTO {
   id: string;
   createdAt: Date;
@@ -33,4 +35,8 @@ export interface IReservationLogData extends IReservation {
       };
     };
   };
+}
+
+export interface IReservationWithBox extends IReservation {
+  box: IBox;
 }

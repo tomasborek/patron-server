@@ -1,4 +1,5 @@
 import { IBoxDTO } from './box.entity';
+import { BoxState } from './enums';
 
 export interface IStation {
   id: string;

@@ -4,26 +4,44 @@ import morgan from 'morgan';
 import cors from 'cors';
 import corsOptions from '@/utils/corsOptions';
 import config from './config';
+import { Server as ServerIo } from 'socket.io';
+import type { Server as HttpServer } from 'http';
+import type { Socket } from 'socket.io';
 
 export default class Server {
   private readonly app: express.Application;
+  private httpServer: HttpServer | null;
+  private io: ServerIo | null;
   constructor(router: express.Router) {
     this.app = express();
+    this.httpServer = null;
+    this.io = null;
 
     this.app.use(helmet({ crossOriginResourcePolicy: false }));
     this.app.use(express.json());
     this.app.use(cors(corsOptions));
-    this.app.use(
-      morgan(':method [:url] :status :res[content-length] - :response-time ms')
-    );
+    this.app.use(morgan(':method [:url] :status :res[content-length] - :response-time ms'));
     this.app.use(config.app.prefix, router);
   }
 
-  listen(port: number, callback: () => void) {
-    this.app.listen(port, callback);
+  public listen(port: number, callback: () => void, socketCallback?: (socket: Socket) => void) {
+    this.httpServer = this.app.listen(port, () => {
+      callback();
+      if (socketCallback) {
+        this.initSocket(socketCallback);
+      }
+    });
   }
 
-  getServer() {
+  public initSocket(callback: (socket: Socket) => void) {
+    if (!this.httpServer) {
+      throw new Error('Server is not running');
+    }
+    this.io = new ServerIo(this.httpServer, { cors: { origin: '*' } });
+    this.io.on('connection', callback);
+  }
+
+  public getServer() {
     return this.app;
   }
 }

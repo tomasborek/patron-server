@@ -54,6 +54,14 @@ export default class UserRepository implements IUserRepository {
     return this.db.user.findUnique({ where: { email } });
   };
 
+  getByCode = (code: string, institutionId: string) => {
+    return this.db.userInstitution
+      .findFirst({
+        where: { code, institutionId },
+      })
+      ?.user();
+  };
+
   isInInstitution = async (userId: string, institutionId: string) => {
     const user = await this.db.user.findUnique({
       where: { id: userId },
@@ -103,7 +111,12 @@ export default class UserRepository implements IUserRepository {
 
   getReservations = async (userId: string) => {
     const reservations = await this.db.reservation.findMany({
-      where: { userId, cancelled: false },
+      where: {
+        userId,
+        cancelled: false,
+        completed: false,
+        createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+      },
       select: {
         id: true,
         createdAt: true,

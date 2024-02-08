@@ -88,6 +88,7 @@ model Reservation{
   userId    String
   cancelled Boolean @default(false)
   cancelledAt DateTime?
+  completed Boolean @default(false)
 }
 
 model Log{

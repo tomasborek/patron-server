@@ -9,6 +9,8 @@ interface IBoxRepository {
   create: (stationId: string, localId: number) => Promise<void>;
   createReservation: (boxId: string, userId: string) => Promise<IReservation>;
   isReserved: (id: string) => Promise<boolean>;
+  resetToDefault: (id: string) => Promise<void>;
+  empty: (id: string) => Promise<void>;
 }
 
 export default IBoxRepository;
