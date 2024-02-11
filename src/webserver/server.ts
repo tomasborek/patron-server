@@ -1,3 +1,4 @@
+import type { Request, Response } from 'express';
 import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -7,6 +8,7 @@ import config from './config';
 import { Server as ServerIo } from 'socket.io';
 import type { Server as HttpServer } from 'http';
 import type { Socket } from 'socket.io';
+import { SuccessResponse } from '@/utils/response';
 
 export default class Server {
   private readonly app: express.Application;
@@ -21,10 +23,13 @@ export default class Server {
     this.app.use(express.json());
     this.app.use(cors(corsOptions));
     this.app.use(morgan(':method [:url] :status :res[content-length] - :response-time ms'));
+    this.app.get('/health', (req: Request, res: Response) => {
+      return new SuccessResponse({ res, data: { status: 'ok' } }).send();
+    });
     this.app.use(config.app.prefix, router);
   }
 
-  public listen(port: number, callback: () => void, socketCallback?: (socket: Socket) => void) {
+  public listen(port: number, callback: () => void, socketCallback?: (io: ServerIo) => void) {
     this.httpServer = this.app.listen(port, () => {
       callback();
       if (socketCallback) {
@@ -33,12 +38,12 @@ export default class Server {
     });
   }
 
-  public initSocket(callback: (socket: Socket) => void) {
+  public initSocket(callback: (io: ServerIo) => void) {
     if (!this.httpServer) {
       throw new Error('Server is not running');
     }
-    this.io = new ServerIo(this.httpServer, { cors: { origin: '*' } });
-    this.io.on('connection', callback);
+    this.io = new ServerIo(this.httpServer, { cors: { origin: '*', methods: ['GET', 'POST'], credentials: true } });
+    callback(this.io);
   }
 
   public getServer() {

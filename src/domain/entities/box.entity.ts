@@ -18,3 +18,12 @@ export interface ISimpleBox {
   localId: number;
   state: BoxState;
 }
+
+export interface IExtendedBox extends IBox {
+  station: {
+    id: string;
+    institution: {
+      id: string;
+    };
+  };
+}

@@ -128,7 +128,7 @@ enum InstitutionRole{
 enum LogAction{
   RESERVATIONCREATE
   RESERVATIONCANCEL
-  OPEN
+  BORROW
   RETURN
   PHOTO
   ADD

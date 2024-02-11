@@ -21,30 +21,40 @@ import { stationUsecase } from './webserver/container';
       () => {
         logger.info(`Server listening on port ${config.app.port}`);
       },
-      (socket) => {
-        logger.info(`Socket connected ${socket.id}`);
-        socket.on('message', async (data) => {
-          try {
-            if (data.event === 'return') {
-              const box = await stationUsecase.getBoxForReturn(data.data.id, data.data.code);
-              return socket.emit('message', { event: 'return', data: { id: data.data.id, boxId: box } });
-            }
-            if (data.event === 'reservation') {
-              const box = await stationUsecase.getBoxForReservation(data.data.id, data.data.code);
-              return socket.emit('message', { event: 'reservation', data: { id: data.data.id, boxId: box } });
-            }
-            if (data.event === 'boxesStatus') {
-              const boxes = await stationUsecase.getBoxesStatus(data.data.id);
-              return socket.emit('message', { event: 'boxesStatus', data: { id: data.data.id, boxes } });
-            }
-            if (data.event === 'borrow') {
-              await stationUsecase.borrow(data.data.id, data.data.code);
-              return socket.emit('message', { event: 'borrow', data: { id: data.data.id } });
-            }
-            throw new Error('Invalid event');
-          } catch (error) {
-            logger.error("Couldn't process message", error);
+      async (io) => {
+        io.on('connection', (socket) => {
+          logger.info(`Socket connected ${socket.id}`);
+          if (socket.handshake.auth.password !== config.passwords.interface) socket.disconnect();
+          if (socket?.handshake?.query?.id) {
+            stationUsecase.getBoxesStatus(socket.handshake.query.id as string).then((boxes) => {
+              setTimeout(() => {
+                socket.emit('status', { event: 'boxesStatus', data: { id: socket.handshake.query.id, boxes } });
+              }, 1000);
+            });
           }
+          socket.on('message', async (data) => {
+            try {
+              if (data.event === 'return') {
+                const box = await stationUsecase.getBoxForReturn(data.data.id, data.data.code);
+                return io.sockets.emit('message', { event: 'return', data: { id: data.data.id, boxId: box } });
+              }
+              if (data.event === 'reservation') {
+                const box = await stationUsecase.getBoxForReservation(data.data.id, data.data.code);
+                return io.sockets.emit('message', { event: 'reservation', data: { id: data.data.id, boxId: box } });
+              }
+              if (data.event === 'boxesStatus') {
+                const boxes = await stationUsecase.getBoxesStatus(data.data.id);
+                return io.sockets.emit('message', { event: 'boxesStatus', data: { id: data.data.id, boxes } });
+              }
+              if (data.event === 'borrow') {
+                const box = await stationUsecase.borrow(data.data.id, data.data.code, data.data.boxId);
+                return io.sockets.emit('message', { event: 'borrow', data: { id: data.data.id, boxId: box } });
+              }
+              throw new Error('Invalid event');
+            } catch (error) {
+              logger.error("Couldn't process message", error);
+            }
+          });
         });
       },
     );

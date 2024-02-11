@@ -19,7 +19,10 @@ export default class ReservationUsecase extends Publisher implements IReservatio
     if (data) {
       this.notify({
         event: 'reservation-cancelled',
-        data,
+        data: {
+          boxId: data.boxId,
+          userId: data.userId,
+        },
       });
     }
   };

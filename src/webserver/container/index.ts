@@ -42,7 +42,7 @@ const stationRepository = new StationRepository(db);
 //usecases
 const userUsecase = new UserUsecase(userRepository, boxRepository);
 const institutionUsecase = new InstitutionUsecase(institutionRepository, userRepository, boxRepository);
-const boxUsecase = new BoxUsecase(boxRepository, reservationRepository);
+const boxUsecase = new BoxUsecase(boxRepository, reservationRepository, userRepository);
 const reservationUsecase = new ReservationUsecase(reservationRepository);
 const logUsecase = new LogUsecase(logRepository, institutionRepository);
 export const stationUsecase = new StationUsecase(
@@ -54,13 +54,14 @@ export const stationUsecase = new StationUsecase(
 
 //observers
 const emailObserver = new EmailObserver(userRepository);
-const logObserver = new LogObserver(logRepository);
+const logObserver = new LogObserver(logRepository, boxRepository);
 userUsecase.subscribe(emailObserver);
 institutionUsecase.subscribe(emailObserver);
 userUsecase.subscribe(logObserver);
 institutionUsecase.subscribe(logObserver);
 boxUsecase.subscribe(logObserver);
 reservationUsecase.subscribe(logObserver);
+stationUsecase.subscribe(logObserver);
 
 //controllers
 const userController = new UserController(userUsecase);

@@ -15,6 +15,37 @@ export default class LogRepository implements ILogRepository {
       where: {
         ...query,
       },
+      select: {
+        id: true,
+        createdAt: true,
+        action: true,
+        box: {
+          select: {
+            id: true,
+            localId: true,
+          },
+        },
+        station: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        institution: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        user: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            role: true,
+          },
+        },
+      },
     });
   };
 }

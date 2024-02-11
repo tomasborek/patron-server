@@ -1,6 +1,7 @@
 import { BoxState, PrismaClient } from '@prisma/client';
 import IBoxRepository from './common/IBoxRepository';
 import moment from 'moment';
+import { IExtendedBox } from '@/domain/entities/box.entity';
 
 export default class BoxRepository implements IBoxRepository {
   constructor(private db: PrismaClient) {}
@@ -22,7 +23,10 @@ export default class BoxRepository implements IBoxRepository {
   };
   canReserve = async (id: string, userId: string) => {
     return !!(await this.db.box.findUnique({
-      where: { id, station: { institution: { users: { some: { userId } } } } },
+      where: {
+        id,
+        station: { institution: { users: { some: { userId } } } },
+      },
     }));
   };
   isReserved = async (id: string) => {
@@ -42,5 +46,11 @@ export default class BoxRepository implements IBoxRepository {
 
   empty = async (id: string) => {
     await this.db.box.update({ where: { id }, data: { state: 'EMPTY' } });
+  };
+  getExtended = (id: string) => {
+    return this.db.box.findUnique({
+      where: { id },
+      include: { station: { select: { id: true, institution: { select: { id: true } } } } },
+    });
   };
 }

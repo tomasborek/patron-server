@@ -1,4 +1,5 @@
 import { LogAction } from '@prisma/client';
+import { UserInstitutionRole, UserRole } from './enums';
 
 export interface ILog {
   id: string;
@@ -17,5 +18,29 @@ export interface ICreateLogData {
   userId?: string;
   institutionId?: string;
   userInstitutionId?: string;
+  action: LogAction;
+}
+
+export interface ILogDTO {
+  id: string;
+  createdAt: Date;
+  box: {
+    id: string;
+    localId: number;
+  } | null;
+  station: {
+    id: string;
+    name: string;
+  } | null;
+  user: {
+    id: string;
+    email: string;
+    name: string | null;
+    role: UserRole;
+  } | null;
+  institution: {
+    id: string;
+    name: string;
+  } | null;
   action: LogAction;
 }

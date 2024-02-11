@@ -1,4 +1,4 @@
-import { IBox } from '@/domain/entities/box.entity';
+import { IBox, IExtendedBox } from '@/domain/entities/box.entity';
 import { BoxState } from '@/domain/entities/enums';
 import { IReservation } from '@/domain/entities/reservation.entity';
 
@@ -11,6 +11,7 @@ interface IBoxRepository {
   isReserved: (id: string) => Promise<boolean>;
   resetToDefault: (id: string) => Promise<void>;
   empty: (id: string) => Promise<void>;
+  getExtended: (id: string) => Promise<IExtendedBox | null>;
 }
 
 export default IBoxRepository;

@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import IUserRepository from './common/IUserRepository';
 import { UserInstitutionRole } from '@/domain/entities/enums';
+import { IBox } from '@/domain/entities/box.entity';
 
 export default class UserRepository implements IUserRepository {
   constructor(private db: PrismaClient) {}
@@ -109,6 +110,18 @@ export default class UserRepository implements IUserRepository {
     });
   };
 
+  getActiveReservations = async (userId: string) => {
+    return this.db.reservation.findMany({
+      where: {
+        userId,
+        cancelled: false,
+        completed: false,
+        createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+      },
+      include: { box: true },
+    });
+  };
+
   getReservations = async (userId: string) => {
     const reservations = await this.db.reservation.findMany({
       where: {
@@ -157,5 +170,31 @@ export default class UserRepository implements IUserRepository {
         },
       },
     }));
+  };
+
+  hasUnreturnedBorrow = async (id: string, stationId: string) => {
+    const newsetBorrow = await this.db.log.findFirst({
+      where: { userId: id, stationId, action: 'BORROW' },
+      orderBy: { createdAt: 'desc' },
+      take: 1,
+    });
+    const newestReturn = await this.db.log.findFirst({
+      where: { userId: id, stationId, action: 'RETURN' },
+      orderBy: { createdAt: 'desc' },
+      take: 1,
+    });
+    if (!newsetBorrow) return false;
+    if (!newestReturn && newsetBorrow) return true;
+    if (!newestReturn && !newsetBorrow) return false;
+    return newsetBorrow.createdAt > newestReturn!.createdAt;
+  };
+  getActiveBorrowBox = async (id: string, stationId: string) => {
+    const borrow = await this.db.log.findFirst({
+      where: { userId: id, stationId, action: 'BORROW' },
+      orderBy: { createdAt: 'desc' },
+      take: 1,
+      include: { box: true },
+    });
+    return borrow?.box ?? null;
   };
 }

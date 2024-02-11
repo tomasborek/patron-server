@@ -4,7 +4,7 @@ export type BoxState = 'DEFAULT' | 'EMPTY' | 'OPEN' | 'DISABLED';
 export type LogAction =
   | 'RESERVATIONCREATE'
   | 'RESERVATIONCANCEL'
-  | 'OPEN'
+  | 'BORROW'
   | 'RETURN'
   | 'PHOTO'
   | 'ADD'

@@ -1,3 +1,4 @@
+import logger from '@/utils/logger';
 import { EventData, IObserver } from './observer';
 
 interface IPublisher {
@@ -18,6 +19,12 @@ export default class Publisher implements IPublisher {
   };
 
   notify = (data: EventData) => {
-    this.observers.forEach((observer) => observer.update(data));
+    this.observers.forEach((observer) => {
+      try {
+        observer.update(data);
+      } catch (error) {
+        logger.error('Error notifying observer', error);
+      }
+    });
   };
 }

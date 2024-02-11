@@ -1,5 +1,6 @@
+import { IBox } from '@/domain/entities/box.entity';
 import { UserInstitutionRole } from '@/domain/entities/enums';
-import { IUserReservationDTO } from '@/domain/entities/reservation.entity';
+import { IReservation, IReservationWithBox, IUserReservationDTO } from '@/domain/entities/reservation.entity';
 import type { IMeDTO, IToken, IUser } from '@/domain/entities/user.entity';
 
 interface IUserRepository {
@@ -14,7 +15,10 @@ interface IUserRepository {
   createToken: (id: string) => Promise<IToken>;
   getToken: (id: string) => Promise<IToken | null>;
   verify: (id: string) => Promise<void>;
+  getActiveReservations: (id: string) => Promise<IReservationWithBox[]>;
   getReservations: (id: string) => Promise<IUserReservationDTO[]>;
+  hasUnreturnedBorrow: (id: string, stationId: string) => Promise<boolean>;
+  getActiveBorrowBox: (id: string, stationId: string) => Promise<IBox | null>;
 }
 
 export default IUserRepository;
