@@ -11,7 +11,7 @@ interface IUserRepository {
   getByEmail: (email: string) => Promise<IUser | null>;
   isInInstitution: (userId: string, institutionId: string) => Promise<boolean>;
   getPassword: (id: string) => Promise<string | null>;
-  activate: (id: string, password: string) => Promise<void>;
+  activate: (id: string, name: string, password: string) => Promise<void>;
   createToken: (id: string) => Promise<IToken>;
   getToken: (id: string) => Promise<IToken | null>;
   verify: (id: string) => Promise<void>;

@@ -8,6 +8,8 @@ import IUserRepository from '@/repositories/common/IUserRepository';
 import Publisher from '@/observers/publisher';
 import IBoxRepository from '@/repositories/common/IBoxRepository';
 import { IStation } from '@/domain/entities/station.entity';
+import { IInstitutionUserDTO } from '@/domain/entities/user.entity';
+import { IGetUsersQuery } from '@/domain/entities/institution.entity';
 
 export default class InstitutionUsecase extends Publisher implements IInstitutionUsecase {
   constructor(
@@ -63,5 +65,16 @@ export default class InstitutionUsecase extends Publisher implements IInstitutio
     for (let i = 0; i < data.boxesCount; i++) {
       await this.boxRepository.create(station.id, i + 1);
     }
+  };
+  getUsers = async (institutionId: string, userId: string, query: IGetUsersQuery) => {
+    const user = await this.userRepository.getById(userId);
+    if (!user) throw new NotFoundError('User not found');
+    if (user.role !== 'DEVELOPER' && !(await this.institutionRepository.isAdmin(userId, institutionId)))
+      throw new ForbiddenError('Forbidden');
+
+    return {
+      users: await this.institutionRepository.getUsers(institutionId, query),
+      count: await this.institutionRepository.countUsers(institutionId),
+    };
   };
 }

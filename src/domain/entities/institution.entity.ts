@@ -13,4 +13,7 @@ export interface ISimpleInstitution {
   role: UserInstitutionRole;
   code: string;
 }
-[];
+
+export interface IGetUsersQuery {
+  page?: string;
+}

@@ -19,6 +19,9 @@ const institutionValidator = {
       page: z.number().min(1).optional(),
     })
     .strict(),
+  getUsers: z.object({
+    page: z.string().optional(),
+  }),
 };
 
 export type InstitutionCreate = z.infer<typeof institutionValidator.create>;

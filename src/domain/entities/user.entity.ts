@@ -11,9 +11,21 @@ export interface IUser {
   active: boolean;
   verified: boolean;
 }
+
+export interface IInstitutionUserDTO {
+  id: string;
+  name: string | null;
+  institutionRole: UserInstitutionRole;
+  role: UserRole;
+  email: string;
+  createdAt: Date;
+  active: boolean;
+  verified: boolean;
+}
+
 export interface IMeDTO {
   id: string;
-  name: string;
+  name: string | null;
   email: string;
   role: UserRole;
   institutions: {

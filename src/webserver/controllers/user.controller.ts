@@ -15,7 +15,7 @@ export default class UserController implements IUserController {
     return new CreatedResponse({ res, data: { token } }).send();
   };
   activate = async (req: Request, res: Response) => {
-    const tokenId = await this.userUsecase.activate(req.body.email, req.body.password);
+    const tokenId = await this.userUsecase.activate(req.body.email, req.body.name, req.body.password);
     return new SuccessResponse({ res, data: { tokenId } }).send();
   };
   verify = async (req: Request, res: Response) => {

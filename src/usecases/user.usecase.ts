@@ -39,11 +39,11 @@ export default class UserUsecase extends Publisher implements IUserUsecase {
     return token;
   };
 
-  activate = async (email: string, password: string) => {
+  activate = async (email: string, name: string, password: string) => {
     const user = await this.userRepository.getByEmail(email);
     if (!user) throw new NotFoundError();
     const hashedPassword = await hash(password);
-    await this.userRepository.activate(user.id, hashedPassword);
+    await this.userRepository.activate(user.id, name, hashedPassword);
     const token = await this.userRepository.createToken(user.id);
     this.notify({ event: 'user-activated', data: { user, token: token.token } });
     return token.id;

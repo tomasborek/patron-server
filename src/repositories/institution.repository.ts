@@ -7,6 +7,8 @@ import IInstitutionRepository from './common/IInstitutionRepository';
 import { PrismaClient } from '@prisma/client';
 import { UserInstitutionRole } from '@/domain/entities/enums';
 import moment from 'moment';
+import { IInstitutionUserDTO } from '@/domain/entities/user.entity';
+import { IGetUsersQuery } from '@/domain/entities/institution.entity';
 
 export default class InstitutionRepository implements IInstitutionRepository {
   constructor(private db: PrismaClient) {}
@@ -79,5 +81,41 @@ export default class InstitutionRepository implements IInstitutionRepository {
   };
   getAllForDev = () => {
     return this.db.institution.findMany();
+  };
+  getUsers = async (institutionId: string, query: IGetUsersQuery) => {
+    const user = await this.db.user.findMany({
+      where: { userInstitutions: { some: { institutionId } } },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        verified: true,
+        active: true,
+        createdAt: true,
+        role: true,
+        userInstitutions: {
+          where: { institutionId },
+          select: {
+            role: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 5,
+      skip: query.page ? (Number(query.page) - 1) * 5 : 0,
+    });
+    return user.map((u) => ({
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      verified: u.verified,
+      active: u.active,
+      createdAt: u.createdAt,
+      role: u.role,
+      institutionRole: u.userInstitutions[0].role,
+    }));
+  };
+  countUsers = async (institutionId: string) => {
+    return this.db.userInstitution.count({ where: { institutionId } });
   };
 }

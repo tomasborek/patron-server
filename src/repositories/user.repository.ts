@@ -83,10 +83,10 @@ export default class UserRepository implements IUserRepository {
     );
   };
 
-  activate = async (id: string, password: string) => {
+  activate = async (id: string, name: string, password: string) => {
     await this.db.user.update({
       where: { id },
-      data: { active: true, password },
+      data: { active: true, password, name },
     });
   };
 

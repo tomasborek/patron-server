@@ -1,6 +1,7 @@
 import { UserInstitutionRole } from '@/domain/entities/enums';
-import { IInstitution, ISimpleInstitution } from '@/domain/entities/institution.entity';
+import { IGetUsersQuery, IInstitution, ISimpleInstitution } from '@/domain/entities/institution.entity';
 import { IStation, IStationDTO } from '@/domain/entities/station.entity';
+import { IInstitutionUserDTO } from '@/domain/entities/user.entity';
 import { InstitutionCreate, InstitutionCreateStation } from '@/webserver/validators/institution.validator';
 import { InstitutionGetMany } from '@/webserver/validators/institution.validator';
 
@@ -14,6 +15,8 @@ interface IInstitutionRepository {
   isAdmin: (userId: string, institutionId: string) => Promise<boolean>;
   getAllCodes: (institutionId: string) => Promise<string[]>;
   createStation: (data: InstitutionCreateStation, institutionId: string) => Promise<IStation>;
+  getUsers: (institutionId: string, query: IGetUsersQuery) => Promise<IInstitutionUserDTO[]>;
+  countUsers: (institutionId: string) => Promise<number>;
 }
 
 export default IInstitutionRepository;

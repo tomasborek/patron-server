@@ -24,6 +24,7 @@ export default class StationUsecase extends Publisher implements IStationUsecase
       throw new BadRequestError('No unreturned borrow found');
     const box = await this.userRepository.getActiveBorrowBox(user.id, station.id);
     if (!box) throw new NotFoundError('No active borrow found');
+    this.boxRepository.resetToDefault(box.id);
     this.notify({ event: 'returned', data: { boxId: box.id, userId: user.id } });
     return box.localId;
   };
