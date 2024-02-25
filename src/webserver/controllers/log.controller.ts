@@ -8,6 +8,6 @@ export default class LogController implements ILogController {
 
   get = async (req: Request, res: Response) => {
     const logs = await this.logUsecase.get(req.query, req.user!.id);
-    return new SuccessResponse({ res, data: { logs } }).send();
+    return new SuccessResponse({ res, data: { logs: logs.logs, count: logs.count } }).send();
   };
 }

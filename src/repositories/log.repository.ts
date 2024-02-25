@@ -13,7 +13,8 @@ export default class LogRepository implements ILogRepository {
   get = async (query: TLogGet) => {
     return this.db.log.findMany({
       where: {
-        ...query,
+        institutionId: query.institutionId,
+        userId: query.userId,
       },
       select: {
         id: true,
@@ -45,6 +46,19 @@ export default class LogRepository implements ILogRepository {
             role: true,
           },
         },
+      },
+      take: 5,
+      skip: query.page ? (Number(query.page) - 1) * 5 : 0,
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  };
+  count = async (query: TLogGet) => {
+    return this.db.log.count({
+      where: {
+        institutionId: query.institutionId,
+        userId: query.userId,
       },
     });
   };

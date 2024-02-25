@@ -44,7 +44,7 @@ const userUsecase = new UserUsecase(userRepository, boxRepository);
 const institutionUsecase = new InstitutionUsecase(institutionRepository, userRepository, boxRepository);
 const boxUsecase = new BoxUsecase(boxRepository, reservationRepository, userRepository);
 const reservationUsecase = new ReservationUsecase(reservationRepository);
-const logUsecase = new LogUsecase(logRepository, institutionRepository);
+const logUsecase = new LogUsecase(logRepository, institutionRepository, userRepository);
 export const stationUsecase = new StationUsecase(
   stationRepository,
   userRepository,

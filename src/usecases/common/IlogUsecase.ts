@@ -1,8 +1,8 @@
-import { ILogDTO } from '@/domain/entities/log';
+import { ILogsDTO } from '@/domain/entities/log';
 import { TLogGet } from '@/webserver/validators/log.validator';
 
 interface ILogUsecase {
-  get(query: TLogGet, userId: string): Promise<ILogDTO[]>;
+  get(query: TLogGet, userId: string): Promise<ILogsDTO>;
 }
 
 export default ILogUsecase;

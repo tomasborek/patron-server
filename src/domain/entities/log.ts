@@ -44,3 +44,8 @@ export interface ILogDTO {
   } | null;
   action: LogAction;
 }
+
+export interface ILogsDTO {
+  logs: ILogDTO[];
+  count: number;
+}

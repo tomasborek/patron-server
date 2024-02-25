@@ -5,6 +5,7 @@ const logValidator = {
     .object({
       userId: z.string().optional(),
       institutionId: z.string().optional(),
+      page: z.string().optional(),
     })
     .strict(),
 };
