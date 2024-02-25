@@ -40,7 +40,7 @@ const logRepository = new LogRepository(db);
 const stationRepository = new StationRepository(db);
 
 //usecases
-const userUsecase = new UserUsecase(userRepository, boxRepository);
+const userUsecase = new UserUsecase(userRepository, institutionRepository);
 const institutionUsecase = new InstitutionUsecase(institutionRepository, userRepository, boxRepository);
 const boxUsecase = new BoxUsecase(boxRepository, reservationRepository, userRepository);
 const reservationUsecase = new ReservationUsecase(reservationRepository);

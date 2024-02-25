@@ -6,9 +6,10 @@ import { hash } from '@/utils/hash';
 import { compare } from 'bcrypt';
 import { signToken } from '@/utils/jwt';
 import IBoxRepository from '@/repositories/common/IBoxRepository';
+import IInstitutionRepository from '@/repositories/common/IInstitutionRepository';
 
 export default class UserUsecase extends Publisher implements IUserUsecase {
-  constructor(private userRepository: IUserRepository, private boxRepository: IBoxRepository) {
+  constructor(private userRepository: IUserRepository, private institutionRepository: IInstitutionRepository) {
     super();
   }
 
@@ -18,6 +19,14 @@ export default class UserUsecase extends Publisher implements IUserUsecase {
     if (!user.active) throw new ForbiddenError();
     const me = await this.userRepository.getMe(id);
     if (!me) throw new ServerError();
+    if (user.role === 'DEVELOPER') {
+      me.institutions = (await this.institutionRepository.getAllForDev()).map((i) => ({
+        id: i.id,
+        name: i.name,
+        code: '000000',
+        role: 'ADMIN',
+      }));
+    }
     return me;
   };
 

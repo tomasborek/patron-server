@@ -77,4 +77,7 @@ export default class InstitutionRepository implements IInstitutionRepository {
       data: { name: data.name, institutionId },
     });
   };
+  getAllForDev = () => {
+    return this.db.institution.findMany();
+  };
 }

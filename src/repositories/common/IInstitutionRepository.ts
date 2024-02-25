@@ -1,5 +1,5 @@
 import { UserInstitutionRole } from '@/domain/entities/enums';
-import { IInstitution } from '@/domain/entities/institution.entity';
+import { IInstitution, ISimpleInstitution } from '@/domain/entities/institution.entity';
 import { IStation, IStationDTO } from '@/domain/entities/station.entity';
 import { InstitutionCreate, InstitutionCreateStation } from '@/webserver/validators/institution.validator';
 import { InstitutionGetMany } from '@/webserver/validators/institution.validator';
@@ -7,6 +7,7 @@ import { InstitutionGetMany } from '@/webserver/validators/institution.validator
 interface IInstitutionRepository {
   create: (data: InstitutionCreate) => Promise<IInstitution>;
   addUser: (institutionId: string, userId: string, role: UserInstitutionRole, code: string) => Promise<void>;
+  getAllForDev: () => Promise<IInstitution[]>;
   getById: (id: string) => Promise<IInstitution | null>;
   getStations: (institutionId: string) => Promise<IStationDTO[]>;
   getMany: (query: InstitutionGetMany) => Promise<IInstitution[]>;
