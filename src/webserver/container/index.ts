@@ -28,6 +28,7 @@ import LogController from '../controllers/log.controller';
 import LogRouterFactory from '../routes/log.router';
 import StationUsecase from '@/usecases/station.usecase';
 import StationRepository from '@/repositories/station.repository';
+import Mailer from '../mail/mailer';
 
 const db = Database.getInstance().getClient();
 
@@ -38,6 +39,7 @@ const boxRepository = new BoxRepository(db);
 const reservationRepository = new ReservationRepository(db);
 const logRepository = new LogRepository(db);
 const stationRepository = new StationRepository(db);
+const mailer = new Mailer();
 
 //usecases
 const userUsecase = new UserUsecase(userRepository, institutionRepository);
@@ -53,7 +55,7 @@ export const stationUsecase = new StationUsecase(
 );
 
 //observers
-const emailObserver = new EmailObserver(userRepository);
+const emailObserver = new EmailObserver(userRepository, mailer);
 const logObserver = new LogObserver(logRepository, boxRepository);
 userUsecase.subscribe(emailObserver);
 institutionUsecase.subscribe(emailObserver);

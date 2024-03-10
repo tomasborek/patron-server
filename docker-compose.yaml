@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  app:
+    image: 'patron-server'
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - '3030:3030'
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
