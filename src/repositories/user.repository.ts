@@ -55,12 +55,12 @@ export default class UserRepository implements IUserRepository {
     return this.db.user.findUnique({ where: { email } });
   };
 
-  getByCode = (code: string, institutionId: string) => {
-    return this.db.userInstitution
-      .findFirst({
-        where: { code, institutionId },
-      })
-      ?.user();
+  getByCode = async (code: string, institutionId: string) => {
+    const userInstitution = await this.db.userInstitution.findFirst({
+      where: { code, institutionId },
+      select: { user: true },
+    });
+    return userInstitution?.user ?? null;
   };
 
   isInInstitution = async (userId: string, institutionId: string) => {

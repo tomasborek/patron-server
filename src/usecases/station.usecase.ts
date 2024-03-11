@@ -56,7 +56,7 @@ export default class StationUsecase extends Publisher implements IStationUsecase
     if (await this.userRepository.hasUnreturnedBorrow(user.id, station.id))
       throw new BadRequestError('User has unreturned borrow');
     this.notify({ event: 'borrowed', data: { boxId: box.id, userId: user.id } });
-
+    await this.boxRepository.empty(box.id);
     return box.localId;
   };
 }
