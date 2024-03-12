@@ -38,8 +38,8 @@ jobs:
 
       - name: Securely copy Docker Compose file to server
         run: |
-          sshpass -p "${{ secrets.SSH_PASSWORD }}" \
-          scp -o StrictHostKeyChecking=no ./docker-compose.yml \
+          sshpass -p "${{ secrets.SERVER_PASSWORD }}" \
+          scp -o StrictHostKeyChecking=no ./docker-compose.yaml \
           ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_IP }}:~/patron
 
       - name: Deploy application
