@@ -20,9 +20,6 @@ jobs:
         run: |
           sshpass -p ${{ secrets.SERVER_PASSWORD }} ssh ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_IP }} << EOF
             cd patron-server
-            docker compose build
-            docker compose restart
+            docker-compose build
             docker-compose up -d
-            npx prisma migrate deploy
-            npx prisma db seed
           EOF
