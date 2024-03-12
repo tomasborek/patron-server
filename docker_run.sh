@@ -1,5 +1,6 @@
 #!/bin/bash
 
+cd "$(dirname "$0")"
 
 export DOCKER_USERNAME=$1
 export DOCKER_PASSWORD=$2
