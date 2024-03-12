@@ -40,7 +40,7 @@ jobs:
         run: |
           sshpass -p "${{ secrets.SERVER_PASSWORD }}" \
           scp -o StrictHostKeyChecking=no ./docker-compose.yaml \
-          ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_IP }}:~/patron
+          ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_IP }}:~/patron/docker-compose.yaml
 
       - name: Deploy application
         run: |
