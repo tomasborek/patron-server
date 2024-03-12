@@ -20,11 +20,11 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t tomasborek/patron:${{ github.sha }} .
+          docker build -t ${{secrets.DOCKER_IMAGE}}:${{ github.sha }} . && docker build -t ${{secrets.DOCKER_IMAGE}}:latest .
 
       - name: Push Docker image
         run: |
-          docker push tomasborek/patron:${{ github.sha }}
+          docker push ${{secrets.DOCKER_IMAGE}}:${{ github.sha }} && docker push ${{secrets.DOCKER_IMAGE}}:latest
 
   deploy:
     runs-on: ubuntu-latest
@@ -39,13 +39,13 @@ jobs:
       - name: Copy docker-compose.yaml
         run: |
           sshpass -p "${{ secrets.SERVER_PASSWORD }}" \
-          scp -o StrictHostKeyChecking=no ./docker-compose.yaml \
+          scp -o StrictHostKeyChecking=no ./docker/docker-compose.production.yaml \
           ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_IP }}:~/patron/docker-compose.yaml
 
       - name: Copy docker_run.sh
         run: |
           sshpass -p "${{secrets.SERVER_PASSWORD}}" \
-          scp -o StrictHostKeyChecking=no ./docker_run.sh \
+          scp -o StrictHostKeyChecking=no ./docker/docker_run.sh \
           ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_IP }}:~/patron/docker_run.sh
 
       - name: Run deploy script on server
