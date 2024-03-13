@@ -24,6 +24,7 @@ export default class Server {
     this.app.use(
       cors({
         origin: 'patronbox.cz',
+        credentials: true,
       }),
     );
     this.app.use(morgan(':method [:url] :status :res[content-length] - :response-time ms'));
