@@ -12,8 +12,7 @@ import { stationUsecase } from './webserver/container';
       .then(() => {
         logger.info('Database connected');
       })
-      .catch((e) => {
-        console.log(e);
+      .catch(() => {
         logger.error('Database connection failed');
       });
     const server = new Server(router);

@@ -4,6 +4,6 @@ services:
     image: 'docker.io/tomasborek/patron:latest'
     restart: always
     env_file:
-      - /config/.env
+      - config/.env
     ports:
       - 3030:3030
