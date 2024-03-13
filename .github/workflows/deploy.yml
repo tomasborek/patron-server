@@ -55,6 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     env:
+      DIRECT_DATABASE_URL: ${{ secrets.DIRECT_DATABASE_URL }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
     steps:
       - name: Checkout repository
