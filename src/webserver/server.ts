@@ -21,7 +21,11 @@ export default class Server {
 
     this.app.use(helmet({ crossOriginResourcePolicy: false }));
     this.app.use(express.json());
-    this.app.use(cors(corsOptions));
+    this.app.use(
+      cors({
+        origin: 'patronbox.cz',
+      }),
+    );
     this.app.use(morgan(':method [:url] :status :res[content-length] - :response-time ms'));
     this.app.get('/health', (req: Request, res: Response) => {
       return new SuccessResponse({ res, data: { status: 'ok' } }).send();
