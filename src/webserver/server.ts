@@ -23,7 +23,7 @@ export default class Server {
     this.app.use(express.json());
     this.app.use(
       cors({
-        origin: 'patronbox.cz',
+        origin: '*',
         credentials: true,
       }),
     );
