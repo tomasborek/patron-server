@@ -1,11 +1,31 @@
 import { PrismaClient } from '@prisma/client';
-import IUserRepository from './common/IUserRepository';
 import { UserInstitutionRole } from '@/domain/entities/enums';
 import { IBox } from '@/domain/entities/box.entity';
+import { IMeDTO, IToken, IUser } from '@/domain/entities/user.entity';
+import { IReservationWithBox, IUserReservationDTO } from '@/domain/entities/reservation.entity';
+
+export interface IUserRepository {
+  create: (email: string, institutionId: string, role: UserInstitutionRole, code: string) => Promise<IUser>;
+  getById: (id: string) => Promise<IUser | null>;
+  getMe: (id: string) => Promise<IMeDTO | null>;
+  getByCode: (code: string, institutionId: string) => Promise<IUser | null>;
+  getByEmail: (email: string) => Promise<IUser | null>;
+  isInInstitution: (userId: string, institutionId: string) => Promise<boolean>;
+  getPassword: (id: string) => Promise<string | null>;
+  activate: (id: string, name: string, password: string) => Promise<void>;
+  createToken: (id: string) => Promise<IToken>;
+  getToken: (id: string) => Promise<IToken | null>;
+  verify: (id: string) => Promise<void>;
+  getActiveReservations: (id: string) => Promise<IReservationWithBox[]>;
+  getReservations: (id: string) => Promise<IUserReservationDTO[]>;
+  hasUnreturnedBorrow: (id: string, stationId: string) => Promise<boolean>;
+  getActiveBorrowBox: (id: string, stationId: string) => Promise<IBox | null>;
+}
 
 export default class UserRepository implements IUserRepository {
   constructor(private db: PrismaClient) {}
-  create = (email: string, institutionId: string, role: UserInstitutionRole, code: string) => {
+
+  public create(email: string, institutionId: string, role: UserInstitutionRole, code: string) {
     return this.db.user.create({
       data: {
         email: email,
@@ -14,13 +34,13 @@ export default class UserRepository implements IUserRepository {
         },
       },
     });
-  };
+  }
 
-  getById = (id: string) => {
+  public async getById(id: string) {
     return this.db.user.findUnique({ where: { id } });
-  };
+  }
 
-  getMe = async (id: string) => {
+  public async getMe(id: string) {
     const me = await this.db.user.findUnique({
       where: { id },
       select: {
@@ -50,29 +70,29 @@ export default class UserRepository implements IUserRepository {
         code: ui.code,
       })),
     };
-  };
-  getByEmail = (email: string) => {
+  }
+  public async getByEmail(email: string) {
     return this.db.user.findUnique({ where: { email } });
-  };
+  }
 
-  getByCode = async (code: string, institutionId: string) => {
+  public async getByCode(code: string, institutionId: string) {
     const userInstitution = await this.db.userInstitution.findFirst({
       where: { code, institutionId },
       select: { user: true },
     });
     return userInstitution?.user ?? null;
-  };
+  }
 
-  isInInstitution = async (userId: string, institutionId: string) => {
+  public async isInInstitution(userId: string, institutionId: string) {
     const user = await this.db.user.findUnique({
       where: { id: userId },
       include: { userInstitutions: true },
     });
     if (!user) return false;
     return user.userInstitutions.some((ui) => ui.institutionId === institutionId);
-  };
+  }
 
-  getPassword = async (id: string) => {
+  public async getPassword(id: string) {
     return (
       (
         await this.db.user.findUnique({
@@ -81,36 +101,36 @@ export default class UserRepository implements IUserRepository {
         })
       )?.password ?? null
     );
-  };
+  }
 
-  activate = async (id: string, name: string, password: string) => {
+  public async activate(id: string, name: string, password: string) {
     await this.db.user.update({
       where: { id },
       data: { active: true, password, name },
     });
-  };
+  }
 
-  createToken = async (id: string) => {
+  public async createToken(id: string) {
     const token = Math.floor(100000 + Math.random() * 900000);
     return this.db.verificationToken.create({
       data: { token, userId: id },
     });
-  };
+  }
 
-  getToken = async (id: string) => {
+  public async getToken(id: string) {
     return this.db.verificationToken.findUnique({
       where: { id },
     });
-  };
+  }
 
-  verify = async (id: string) => {
+  public async verify(id: string) {
     await this.db.user.update({
       where: { id },
       data: { verified: true },
     });
-  };
+  }
 
-  getActiveReservations = async (userId: string) => {
+  public async getActiveReservations(userId: string) {
     return this.db.reservation.findMany({
       where: {
         userId,
@@ -120,9 +140,9 @@ export default class UserRepository implements IUserRepository {
       },
       include: { box: true },
     });
-  };
+  }
 
-  getReservations = async (userId: string) => {
+  public async getReservations(userId: string) {
     const reservations = await this.db.reservation.findMany({
       where: {
         userId,
@@ -170,9 +190,9 @@ export default class UserRepository implements IUserRepository {
         },
       },
     }));
-  };
+  }
 
-  hasUnreturnedBorrow = async (id: string, stationId: string) => {
+  public async hasUnreturnedBorrow(id: string, stationId: string) {
     const newsetBorrow = await this.db.log.findFirst({
       where: { userId: id, stationId, action: 'BORROW' },
       orderBy: { createdAt: 'desc' },
@@ -187,8 +207,8 @@ export default class UserRepository implements IUserRepository {
     if (!newestReturn && newsetBorrow) return true;
     if (!newestReturn && !newsetBorrow) return false;
     return newsetBorrow.createdAt > newestReturn!.createdAt;
-  };
-  getActiveBorrowBox = async (id: string, stationId: string) => {
+  }
+  public async getActiveBorrowBox(id: string, stationId: string) {
     const borrow = await this.db.log.findFirst({
       where: { userId: id, stationId, action: 'BORROW' },
       orderBy: { createdAt: 'desc' },
@@ -196,5 +216,5 @@ export default class UserRepository implements IUserRepository {
       include: { box: true },
     });
     return borrow?.box ?? null;
-  };
+  }
 }

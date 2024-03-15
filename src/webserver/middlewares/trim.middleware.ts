@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express';
 
 export default class TrimMiddlewareFactory {
-  getMiddleware() {
+  public getMiddleware() {
     return (req: Request, res: Response, next: NextFunction) => {
       if (req.method === 'POST' || req.method === 'PATCH') {
         for (const [key, value] of Object.entries(req.body)) {

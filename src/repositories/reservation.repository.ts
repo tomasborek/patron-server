@@ -1,47 +1,56 @@
+import { IReservation, IReservationLogData, IReservationWithBox } from '@/domain/entities/reservation.entity';
 import { PrismaClient } from '@prisma/client';
-import IReservationRepository from './common/IReservationRepository';
 import moment from 'moment';
+
+export interface IReservationRepository {
+  getById: (id: string) => Promise<IReservation | null>;
+  isActive: (id: string) => Promise<boolean>;
+  getLogData: (id: string) => Promise<IReservationLogData | null>;
+  cancel: (id: string) => Promise<void>;
+  complete: (id: string) => Promise<void>;
+  getByUserId: (userId: string) => Promise<IReservationWithBox | null>;
+}
 
 export default class ReservationRepository implements IReservationRepository {
   constructor(private db: PrismaClient) {}
 
-  getById = (id: string) => {
+  public getById(id: string) {
     return this.db.reservation.findUnique({ where: { id } });
-  };
+  }
 
-  isActive = async (id: string) => {
+  public async isActive(id: string) {
     return !!(await this.db.reservation.findUnique({
       where: { id, cancelled: false, completed: false, createdAt: { gte: moment().subtract(24, 'h').toDate() } },
     }));
-  };
-  getLogData = async (id: string) => {
+  }
+  public getLogData(id: string) {
     return this.db.reservation.findUnique({
       where: { id },
       include: {
         box: { select: { id: true, station: { select: { id: true, institution: { select: { id: true } } } } } },
       },
     });
-  };
-  cancel = async (id: string) => {
+  }
+  public async cancel(id: string) {
     await this.db.reservation.update({
       where: { id },
       data: { cancelled: true, cancelledAt: new Date() },
     });
-  };
+  }
 
-  complete = async (id: string) => {
+  public async complete(id: string) {
     await this.db.reservation.update({
       where: { id },
       data: { completed: true },
     });
-  };
+  }
 
-  getByUserId = async (userId: string) => {
+  public getByUserId(userId: string) {
     return this.db.reservation.findFirst({
       where: { userId, cancelled: false, completed: false, createdAt: { gte: moment().subtract(24, 'h').toDate() } },
       include: {
         box: true,
       },
     });
-  };
+  }
 }

@@ -1,29 +1,37 @@
 import type { Request, Response } from 'express';
-import IInstitutionController from './common/IInstitutionController';
-import IInstitutionUsecase from '@/usecases/common/IInstitutionUsecase';
+import { IInstitutionUsecase } from '@/usecases';
 import { SuccessResponse } from '@/utils/response';
+
+export interface IInstitutionController {
+  create: (req: Request, res: Response) => Promise<void>;
+  addUser: (req: Request, res: Response) => Promise<void>;
+  getStations: (req: Request, res: Response) => Promise<void>;
+  createStation: (req: Request, res: Response) => Promise<void>;
+  getUsers: (req: Request, res: Response) => Promise<void>;
+}
 
 export default class InstitutionController implements IInstitutionController {
   constructor(private institutionUsecase: IInstitutionUsecase) {}
-  create = async (req: Request, res: Response) => {
+
+  public async create(req: Request, res: Response) {
     await this.institutionUsecase.create(req.body);
     return new SuccessResponse({ res }).send();
-  };
-  addUser = async (req: Request, res: Response) => {
+  }
+  public async addUser(req: Request, res: Response) {
     await this.institutionUsecase.addUser(req.params.institutionId, req.body.email, req.body.role, req.user!.id);
 
     return new SuccessResponse({ res }).send();
-  };
-  getStations = async (req: Request, res: Response) => {
+  }
+  public async getStations(req: Request, res: Response) {
     const stations = await this.institutionUsecase.getStations(req.params.institutionId, req.user!.id);
     return new SuccessResponse({ res, data: { stations } }).send();
-  };
-  createStation = async (req: Request, res: Response) => {
+  }
+  public async createStation(req: Request, res: Response) {
     await this.institutionUsecase.createStation(req.body, req.params.institutionId);
     return new SuccessResponse({ res }).send();
-  };
-  getUsers = async (req: Request, res: Response) => {
+  }
+  public async getUsers(req: Request, res: Response) {
     const users = await this.institutionUsecase.getUsers(req.params.institutionId, req.user!.id, req.query);
     return new SuccessResponse({ res, data: { users: users.users, count: users.count } }).send();
-  };
+  }
 }

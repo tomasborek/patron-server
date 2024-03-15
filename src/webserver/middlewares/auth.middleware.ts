@@ -6,7 +6,7 @@ import { UnauthorizedResponse } from '@/utils/response';
 export default class AuthMiddlewareFactory {
   constructor(private userRepository: UserRepository) {}
 
-  getMiddleware = () => {
+  public getMiddleware = () => {
     return async (req: Request, res: Response, next: NextFunction) => {
       if (!req.headers.authorization?.includes('Bearer')) {
         return new UnauthorizedResponse({

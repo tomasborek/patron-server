@@ -1,11 +1,12 @@
 import { Router } from 'express';
-import { developer, validate, controller, auth } from '../container';
-import IInstitutionController from '../controllers/common/IInstitutionController';
-import institutionValidator from '../validators/institution.validator';
+import { developer, validate, controller, auth } from '@/webserver/container';
+import { IInstitutionController } from '@/delivery/controllers';
+import institutionValidator from '@/webserver/validators/institution.validator';
 
 export default class InstitutionRouter {
   constructor(private controller: IInstitutionController) {}
-  getRouter() {
+
+  public getRouter() {
     return Router()
       .post('/', developer, validate(institutionValidator.create), controller(this.controller.create))
       .post('/:institutionId/user', auth, validate(institutionValidator.addUser), controller(this.controller.addUser))

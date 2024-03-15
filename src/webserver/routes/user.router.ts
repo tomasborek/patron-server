@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import { auth, controller, validate } from '../container';
-import IUserController from '../controllers/common/IUserController';
-import userValidator from '../validators/user.validator';
+import { auth, controller, validate } from '@/webserver/container';
+import { IUserController } from '@/delivery/controllers';
+import userValidator from '@/webserver/validators/user.validator';
 
 export default class UserRouter {
   constructor(private controller: IUserController) {}
 
-  getRouter() {
+  public getRouter() {
     return Router()
       .post('/auth', validate(userValidator.auth), controller(this.controller.auth))
       .get('/me', auth, controller(this.controller.getMe))

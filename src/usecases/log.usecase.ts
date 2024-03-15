@@ -1,9 +1,13 @@
-import ILogRepository from '@/repositories/common/ILogRepository';
-import ILogUsecase from './common/IlogUsecase';
+import { ILogRepository } from '@/repositories';
 import { TLogGet } from '@/webserver/validators/log.validator';
 import { ForbiddenError, NotFoundError } from '@/utils/errors';
-import IInstitutionRepository from '@/repositories/common/IInstitutionRepository';
-import IUserRepository from '@/repositories/common/IUserRepository';
+import { IInstitutionRepository } from '@/repositories';
+import { IUserRepository } from '@/repositories';
+import { ILogsDTO } from '@/domain/entities/log';
+
+export interface ILogUsecase {
+  get(query: TLogGet, userId: string): Promise<ILogsDTO>;
+}
 
 export default class LogUsecase implements ILogUsecase {
   constructor(
@@ -12,7 +16,7 @@ export default class LogUsecase implements ILogUsecase {
     private userRepository: IUserRepository,
   ) {}
 
-  get = async (query: TLogGet, userId: string) => {
+  public async get(query: TLogGet, userId: string) {
     const user = await this.userRepository.getById(userId);
     if (!user) {
       throw new NotFoundError('User not found');
@@ -42,5 +46,5 @@ export default class LogUsecase implements ILogUsecase {
     const logs = await this.logRepository.get(query);
     const count = await this.logRepository.count(query);
     return { logs, count };
-  };
+  }
 }

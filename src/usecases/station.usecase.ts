@@ -1,10 +1,17 @@
-import IStationRepository from '@/repositories/common/IStationRepository';
-import IStationUsecase from './common/IStationUsecase';
+import { IStationRepository } from '@/repositories';
 import { BadRequestError, NotFoundError } from '@/utils/errors';
-import IUserRepository from '@/repositories/common/IUserRepository';
-import IReservationRepository from '@/repositories/common/IReservationRepository';
-import IBoxRepository from '@/repositories/common/IBoxRepository';
+import { IUserRepository } from '@/repositories';
+import { IReservationRepository } from '@/repositories';
+import { IBoxRepository } from '@/repositories';
 import Publisher from '@/observers/publisher';
+import { ISimpleBox } from '@/domain/entities/box.entity';
+
+interface IStationUsecase {
+  getBoxForReturn(id: string, code: string): Promise<number>; //number for localId
+  getBoxForReservation(id: string, code: string): Promise<number>;
+  getBoxesStatus(id: string): Promise<ISimpleBox[]>;
+  borrow(id: string, code: string, boxId: string): Promise<number>;
+}
 
 export default class StationUsecase extends Publisher implements IStationUsecase {
   constructor(
@@ -15,7 +22,8 @@ export default class StationUsecase extends Publisher implements IStationUsecase
   ) {
     super();
   }
-  getBoxForReturn = async (id: string, code: string) => {
+
+  public async getBoxForReturn(id: string, code: string) {
     const station = await this.stationRepository.getById(id);
     if (!station) throw new NotFoundError('Station not found');
     const user = await this.userRepository.getByCode(code, station.institutionId);
@@ -27,8 +35,8 @@ export default class StationUsecase extends Publisher implements IStationUsecase
     this.boxRepository.resetToDefault(box.id);
     this.notify({ event: 'returned', data: { boxId: box.id, userId: user.id } });
     return box.localId;
-  };
-  getBoxForReservation = async (id: string, code: string) => {
+  }
+  public async getBoxForReservation(id: string, code: string) {
     const station = await this.stationRepository.getById(id);
     if (!station) throw new NotFoundError('Station not found');
     const user = await this.userRepository.getByCode(code, station.institutionId);
@@ -40,12 +48,12 @@ export default class StationUsecase extends Publisher implements IStationUsecase
     await this.boxRepository.empty(reservation.boxId);
     this.notify({ event: 'borrowed', data: { boxId: reservation.boxId, userId: user.id } });
     return reservation.box.localId;
-  };
-  getBoxesStatus = async (id: string) => {
+  }
+  public async getBoxesStatus(id: string) {
     const boxes = await this.stationRepository.getSimpleBoxes(id);
     return boxes;
-  };
-  borrow = async (id: string, code: string, boxId: string) => {
+  }
+  public async borrow(id: string, code: string, boxId: string) {
     const station = await this.stationRepository.getById(id);
     if (!station) throw new NotFoundError('Station not found');
     const user = await this.userRepository.getByCode(code, station.institutionId);
@@ -58,5 +66,5 @@ export default class StationUsecase extends Publisher implements IStationUsecase
     this.notify({ event: 'borrowed', data: { boxId: box.id, userId: user.id } });
     await this.boxRepository.empty(box.id);
     return box.localId;
-  };
+  }
 }

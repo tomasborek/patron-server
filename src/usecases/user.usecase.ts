@@ -1,19 +1,25 @@
-import IUserRepository from '@/repositories/common/IUserRepository';
-import IUserUsecase from './common/IUserUsecase';
+import { IUserRepository } from '@/repositories';
 import { BadRequestError, ForbiddenError, NotFoundError, ServerError } from '@/utils/errors';
 import Publisher from '@/observers/publisher';
 import { hash } from '@/utils/hash';
 import { compare } from 'bcrypt';
 import { signToken } from '@/utils/jwt';
-import IBoxRepository from '@/repositories/common/IBoxRepository';
-import IInstitutionRepository from '@/repositories/common/IInstitutionRepository';
-
+import { IInstitutionRepository } from '@/repositories';
+import { IMeDTO } from '@/domain/entities/user.entity';
+import { IUserReservationDTO } from '@/domain/entities/reservation.entity';
+export interface IUserUsecase {
+  getMe: (id: string) => Promise<IMeDTO>;
+  auth: (email: string, password: string) => Promise<string>;
+  activate: (id: string, name: string, password: string) => Promise<string>;
+  verify: (tokenId: string, code: number) => Promise<void>;
+  getReservations: (id: string) => Promise<IUserReservationDTO[]>;
+}
 export default class UserUsecase extends Publisher implements IUserUsecase {
   constructor(private userRepository: IUserRepository, private institutionRepository: IInstitutionRepository) {
     super();
   }
 
-  getMe = async (id: string) => {
+  public async getMe(id: string) {
     const user = await this.userRepository.getById(id);
     if (!user) throw new NotFoundError();
     if (!user.active) throw new ForbiddenError();
@@ -28,18 +34,18 @@ export default class UserUsecase extends Publisher implements IUserUsecase {
       }));
     }
     return me;
-  };
+  }
 
-  auth = async (email: string, password: string) => {
+  public async auth(email: string, password: string) {
     const user = await this.userRepository.getByEmail(email);
     if (!user) throw new NotFoundError();
     const match = await compare(password, user.password ?? '');
     if (!match) throw new ForbiddenError();
     const token = signToken({ id: user.id, role: user.role });
     return token;
-  };
+  }
 
-  activate = async (email: string, name: string, password: string) => {
+  public async activate(email: string, name: string, password: string) {
     const user = await this.userRepository.getByEmail(email);
     if (!user) throw new NotFoundError();
     const hashedPassword = await hash(password);
@@ -47,16 +53,16 @@ export default class UserUsecase extends Publisher implements IUserUsecase {
     const token = await this.userRepository.createToken(user.id);
     this.notify({ event: 'user-activated', data: { user, token: token.token } });
     return token.id;
-  };
+  }
 
-  verify = async (tokenId: string, code: number) => {
+  public async verify(tokenId: string, code: number) {
     const token = await this.userRepository.getToken(tokenId);
     if (!token) throw new ForbiddenError();
     if (token.token !== code) throw new ForbiddenError();
     await this.userRepository.verify(token.userId);
-  };
+  }
 
-  getReservations = (id: string) => {
+  public getReservations(id: string) {
     return this.userRepository.getReservations(id);
-  };
+  }
 }

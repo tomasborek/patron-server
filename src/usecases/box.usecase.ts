@@ -1,9 +1,12 @@
-import IBoxRepository from '@/repositories/common/IBoxRepository';
-import IBoxUsecase from './common/IBoxUsecase';
+import { IBoxRepository } from '@/repositories/';
 import { ForbiddenError, NotFoundError } from '@/utils/errors';
 import Publisher from '@/observers/publisher';
-import IReservationRepository from '@/repositories/common/IReservationRepository';
-import IUserRepository from '@/repositories/common/IUserRepository';
+import { IReservationRepository } from '@/repositories';
+import { IUserRepository } from '@/repositories';
+
+export interface IBoxUsecase {
+  createReservation: (boxId: string, userId: string) => Promise<void>;
+}
 
 export default class BoxUsecase extends Publisher implements IBoxUsecase {
   constructor(
@@ -14,7 +17,7 @@ export default class BoxUsecase extends Publisher implements IBoxUsecase {
     super();
   }
 
-  createReservation = async (boxId: string, userId: string) => {
+  public async createReservation(boxId: string, userId: string) {
     const box = await this.boxRepository.getById(boxId);
     if (!box) throw new NotFoundError();
     if (!(await this.boxRepository.canReserve(box.id, userId))) throw new ForbiddenError('You cannot reserve this box');
@@ -33,5 +36,5 @@ export default class BoxUsecase extends Publisher implements IBoxUsecase {
         },
       });
     }
-  };
+  }
 }

@@ -2,9 +2,7 @@ import type { Request, Response, NextFunction } from 'express';
 import type { ZodError, ZodSchema } from 'zod';
 
 export class ValidateMiddlewareFactory {
-  constructor() {}
-
-  getMiddleware() {
+  public getMiddleware() {
     return (schema: ZodSchema, options?: { query: boolean }) => {
       return async (req: Request, res: Response, next: NextFunction) => {
         try {

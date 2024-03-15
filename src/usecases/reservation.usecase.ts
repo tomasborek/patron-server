@@ -1,14 +1,17 @@
-import IReservationRepository from '@/repositories/common/IReservationRepository';
-import IReservationUsecase from './common/IReservationUsecase';
+import { IReservationRepository } from '@/repositories';
 import { BadRequestError, ForbiddenError, NotFoundError } from '@/utils/errors';
 import Publisher from '@/observers/publisher';
+
+export interface IReservationUsecase {
+  cancel: (id: string, userId: string) => Promise<void>;
+}
 
 export default class ReservationUsecase extends Publisher implements IReservationUsecase {
   constructor(private reservationRepository: IReservationRepository) {
     super();
   }
 
-  cancel = async (id: string, userId: string) => {
+  public cancel = async (id: string, userId: string) => {
     const reservation = await this.reservationRepository.getById(id);
     if (!reservation) throw new NotFoundError();
     if (reservation.userId !== userId) throw new ForbiddenError('You cannot cancel this reservation');

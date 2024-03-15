@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import IReservationController from '../controllers/common/IReservationController';
-import { auth } from '../container';
+import { IReservationController } from '@/delivery/controllers';
+import { auth } from '@/webserver/container';
 
 export default class ReservationRouterFactory {
   constructor(private reservationController: IReservationController) {}
 
-  getRouter = () => {
+  public getRouter = () => {
     return Router().post('/:reservationId/cancel', auth, this.reservationController.cancel);
   };
 }

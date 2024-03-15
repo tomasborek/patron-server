@@ -1,15 +1,26 @@
-import IInstitutionRepository from '@/repositories/common/IInstitutionRepository';
-import IInstitutionUsecase from './common/IInstitutionUsecase';
 import { InstitutionCreate, InstitutionCreateStation } from '@/webserver/validators/institution.validator';
 import { UserInstitutionRole } from '@/domain/entities/enums';
 import { AlreadyExistsError, ForbiddenError } from '@/utils/errors';
 import { NotFoundError } from '@/utils/errors';
-import IUserRepository from '@/repositories/common/IUserRepository';
+import { IInstitutionRepository, IUserRepository } from '@/repositories';
 import Publisher from '@/observers/publisher';
-import IBoxRepository from '@/repositories/common/IBoxRepository';
+import { IBoxRepository } from '@/repositories/box.repository';
 import { IStation } from '@/domain/entities/station.entity';
 import { IInstitutionUserDTO } from '@/domain/entities/user.entity';
 import { IGetUsersQuery } from '@/domain/entities/institution.entity';
+
+export interface IInstitutionUsecase {
+  create: (data: InstitutionCreate) => Promise<void>;
+  addUser: (institutionId: string, email: string, role: string, adminId: string) => Promise<void>;
+  getStations: (institutionId: string, userId: string) => Promise<IStation[]>;
+  generateCode: (institutionId: string) => Promise<string>;
+  createStation: (data: InstitutionCreateStation, institutionId: string) => Promise<void>;
+  getUsers: (
+    institutionId: string,
+    userId: string,
+    query: IGetUsersQuery,
+  ) => Promise<{ users: IInstitutionUserDTO[]; count: number }>;
+}
 
 export default class InstitutionUsecase extends Publisher implements IInstitutionUsecase {
   constructor(
@@ -20,10 +31,11 @@ export default class InstitutionUsecase extends Publisher implements IInstitutio
     super();
   }
 
-  create = async (data: InstitutionCreate) => {
+  public async create(data: InstitutionCreate) {
     await this.institutionRepository.create(data);
-  };
-  addUser = async (institutionId: string, email: string, role: UserInstitutionRole, adminId: string) => {
+  }
+
+  public async addUser(institutionId: string, email: string, role: UserInstitutionRole, adminId: string) {
     const institution = await this.institutionRepository.getById(institutionId);
     if (!institution) throw new NotFoundError('Institution not found');
     const admin = await this.userRepository.getById(adminId);
@@ -45,28 +57,32 @@ export default class InstitutionUsecase extends Publisher implements IInstitutio
       event: 'user-added-to-institution',
       data: { user: existingUser, institution },
     });
-  };
-  getStations = async (institutionId: string, userId: string) => {
+  }
+
+  public async getStations(institutionId: string, userId: string) {
     const institution = await this.institutionRepository.getById(institutionId);
     if (!institution) throw new NotFoundError('Institution not found');
     if (!(await this.userRepository.isInInstitution(userId, institutionId))) throw new ForbiddenError();
     return this.institutionRepository.getStations(institutionId);
-  };
-  generateCode = async (institutionId: string) => {
+  }
+
+  public async generateCode(institutionId: string) {
     const codes = await this.institutionRepository.getAllCodes(institutionId);
     let code;
     do {
       code = Math.floor(100000 + Math.random() * 900000).toString();
     } while (codes.includes(code));
     return code;
-  };
-  createStation = async (data: InstitutionCreateStation, institutionId: string) => {
+  }
+
+  public async createStation(data: InstitutionCreateStation, institutionId: string) {
     const station = await this.institutionRepository.createStation(data, institutionId);
     for (let i = 0; i < data.boxesCount; i++) {
       await this.boxRepository.create(station.id, i + 1);
     }
-  };
-  getUsers = async (institutionId: string, userId: string, query: IGetUsersQuery) => {
+  }
+
+  public async getUsers(institutionId: string, userId: string, query: IGetUsersQuery) {
     const user = await this.userRepository.getById(userId);
     if (!user) throw new NotFoundError('User not found');
     if (user.role !== 'DEVELOPER' && !(await this.institutionRepository.isAdmin(userId, institutionId)))
@@ -76,5 +92,5 @@ export default class InstitutionUsecase extends Publisher implements IInstitutio
       users: await this.institutionRepository.getUsers(institutionId, query),
       count: await this.institutionRepository.countUsers(institutionId),
     };
-  };
+  }
 }

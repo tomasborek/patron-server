@@ -1,16 +1,23 @@
 import { PrismaClient } from '@prisma/client';
-import ILogRepository from './common/ILogRepository';
-import { ICreateLogData } from '@/domain/entities/log';
+import { ICreateLogData, ILogDTO } from '@/domain/entities/log';
 import { TLogGet } from '@/webserver/validators/log.validator';
+
+export interface ILogRepository {
+  logAction(log: ICreateLogData): Promise<void>;
+  get(query: TLogGet): Promise<ILogDTO[]>;
+  count(query: TLogGet): Promise<number>;
+}
 
 export default class LogRepository implements ILogRepository {
   constructor(private db: PrismaClient) {}
-  logAction = async (log: ICreateLogData) => {
+
+  public async logAction(log: ICreateLogData) {
     await this.db.log.create({
       data: log,
     });
-  };
-  get = async (query: TLogGet) => {
+  }
+
+  public async get(query: TLogGet) {
     return this.db.log.findMany({
       where: {
         institutionId: query.institutionId,
@@ -53,13 +60,14 @@ export default class LogRepository implements ILogRepository {
         createdAt: 'desc',
       },
     });
-  };
-  count = async (query: TLogGet) => {
+  }
+
+  public async count(query: TLogGet) {
     return this.db.log.count({
       where: {
         institutionId: query.institutionId,
         userId: query.userId,
       },
     });
-  };
+  }
 }
