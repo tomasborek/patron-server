@@ -1,6 +1,6 @@
-import ILogRepository from '@/repositories/common/ILogRepository';
+import { ILogRepository } from '@/repositories';
 import { EventData, IObserver } from './observer';
-import IBoxRepository from '@/repositories/common/IBoxRepository';
+import { IBoxRepository } from '@/repositories';
 
 export default class LogObserver implements IObserver {
   constructor(private logRepository: ILogRepository, private boxRepository: IBoxRepository) {}

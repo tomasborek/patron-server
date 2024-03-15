@@ -1,4 +1,4 @@
-import IUserRepository from '@/repositories/common/IUserRepository';
+import { IUserRepository } from '@/repositories/';
 import { EventData, IObserver } from './observer';
 import { IUserActivatedEvent, IUserAddedToInstitutionEvent } from './events/user';
 import { IMailer } from '@/webserver/mail/mailer';
