@@ -6,6 +6,11 @@ export default class LogRouterFactory {
   constructor(private controller: ILogController) {}
 
   public getRouter() {
-    return Router().get('/', validate(logValidator.get, { query: true }), auth, controller(this.controller.get));
+    return Router().get(
+      '/',
+      validate(logValidator.get, { query: true }),
+      auth,
+      controller(this.controller.get.bind(this.controller)),
+    );
   }
 }

@@ -8,10 +8,14 @@ export default class UserRouter {
 
   public getRouter() {
     return Router()
-      .post('/auth', validate(userValidator.auth), controller(this.controller.auth))
-      .get('/me', auth, controller(this.controller.getMe))
-      .get('/reservation', auth, controller(this.controller.getReservations))
-      .post('/activate', validate(userValidator.activate), controller(this.controller.activate))
-      .post('/verify/:tokenId', validate(userValidator.verify), controller(this.controller.verify));
+      .post('/auth', validate(userValidator.auth), controller(this.controller.auth.bind(this.controller)))
+      .get('/me', auth, controller(this.controller.getMe.bind(this.controller)))
+      .get('/reservation', auth, controller(this.controller.getReservations.bind(this.controller)))
+      .post('/activate', validate(userValidator.activate), controller(this.controller.activate.bind(this.controller)))
+      .post(
+        '/verify/:tokenId',
+        validate(userValidator.verify),
+        controller(this.controller.verify.bind(this.controller)),
+      );
   }
 }

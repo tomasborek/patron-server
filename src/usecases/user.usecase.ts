@@ -1,5 +1,5 @@
 import { IUserRepository } from '@/repositories';
-import { BadRequestError, ForbiddenError, NotFoundError, ServerError } from '@/utils/errors';
+import { ForbiddenError, NotFoundError, ServerError } from '@/utils/errors';
 import Publisher from '@/observers/publisher';
 import { hash } from '@/utils/hash';
 import { compare } from 'bcrypt';
@@ -36,14 +36,14 @@ export default class UserUsecase extends Publisher implements IUserUsecase {
     return me;
   }
 
-  public async auth(email: string, password: string) {
+  public auth = async (email: string, password: string) => {
     const user = await this.userRepository.getByEmail(email);
     if (!user) throw new NotFoundError();
     const match = await compare(password, user.password ?? '');
     if (!match) throw new ForbiddenError();
     const token = signToken({ id: user.id, role: user.role });
     return token;
-  }
+  };
 
   public async activate(email: string, name: string, password: string) {
     const user = await this.userRepository.getByEmail(email);

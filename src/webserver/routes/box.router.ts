@@ -6,6 +6,10 @@ export default class BoxRouterFactory {
   constructor(private controller: IBoxController) {}
 
   public getRouter() {
-    return Router().post('/:boxId/reservation', auth, controller(this.controller.createReservation));
+    return Router().post(
+      '/:boxId/reservation',
+      auth,
+      controller(this.controller.createReservation.bind(this.controller)),
+    );
   }
 }

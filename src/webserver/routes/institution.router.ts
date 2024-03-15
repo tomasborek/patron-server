@@ -8,19 +8,29 @@ export default class InstitutionRouter {
 
   public getRouter() {
     return Router()
-      .post('/', developer, validate(institutionValidator.create), controller(this.controller.create))
-      .post('/:institutionId/user', auth, validate(institutionValidator.addUser), controller(this.controller.addUser))
-      .get('/:institutionId/station', auth, controller(this.controller.getStations))
+      .post(
+        '/',
+        developer,
+        validate(institutionValidator.create),
+        controller(this.controller.create.bind(this.controller)),
+      )
+      .post(
+        '/:institutionId/user',
+        auth,
+        validate(institutionValidator.addUser),
+        controller(this.controller.addUser.bind(this.controller)),
+      )
+      .get('/:institutionId/station', auth, controller(this.controller.getStations.bind(this.controller)))
       .get(
         '/:institutionId/user',
         validate(institutionValidator.getUsers, { query: true }),
         auth,
-        controller(this.controller.getUsers),
+        controller(this.controller.getUsers.bind(this.controller)),
       )
       .post(
         '/:institutionId/station',
         validate(institutionValidator.createStation),
-        controller(this.controller.createStation),
+        controller(this.controller.createStation.bind(this.controller)),
       );
   }
 }
