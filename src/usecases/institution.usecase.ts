@@ -61,8 +61,11 @@ export default class InstitutionUsecase extends Publisher implements IInstitutio
 
   public async getStations(institutionId: string, userId: string) {
     const institution = await this.institutionRepository.getById(institutionId);
+    const user = await this.userRepository.getById(userId);
+    if (!user) throw new NotFoundError('User not found');
     if (!institution) throw new NotFoundError('Institution not found');
-    if (!(await this.userRepository.isInInstitution(userId, institutionId))) throw new ForbiddenError();
+    if (!(await this.userRepository.isInInstitution(userId, institutionId)) && user.role !== 'DEVELOPER')
+      throw new ForbiddenError();
     return this.institutionRepository.getStations(institutionId);
   }
 
