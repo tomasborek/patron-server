@@ -15,6 +15,13 @@ export default class LogObserver implements IObserver {
         action: 'ADD',
       });
     }
+    if (data.event === 'user-removed-from-institution') {
+      await this.logRepository.logAction({
+        userId: data.data.user.id,
+        institutionId: data.data.institution.id,
+        action: 'REMOVE',
+      });
+    }
     if (data.event === 'reservation-created') {
       const box = await this.boxRepository.getExtended(data.data.boxId);
       if (!box) throw new Error('Box not found');
@@ -38,7 +45,6 @@ export default class LogObserver implements IObserver {
       });
     }
     if (data.event === 'borrowed') {
-      console.log('someone borrow soemthing');
       const box = await this.boxRepository.getExtended(data.data.boxId);
       if (!box) throw new Error('Box not found');
       await this.logRepository.logAction({

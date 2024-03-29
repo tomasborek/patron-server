@@ -13,6 +13,7 @@ import { IStationDTO, IStation } from '@/domain/entities/station.entity';
 export interface IInstitutionRepository {
   create: (data: InstitutionCreate) => Promise<IInstitution>;
   addUser: (institutionId: string, userId: string, role: UserInstitutionRole, code: string) => Promise<void>;
+  removeUser: (institutionId: string, userId: string) => Promise<void>;
   getAllForDev: () => Promise<IInstitution[]>;
   getById: (id: string) => Promise<IInstitution | null>;
   getStations: (institutionId: string) => Promise<IStationDTO[]>;
@@ -35,6 +36,11 @@ export default class InstitutionRepository implements IInstitutionRepository {
   public async addUser(institutionId: string, userId: string, role: UserInstitutionRole, code: string) {
     await this.db.userInstitution.create({
       data: { userId, institutionId, role, code },
+    });
+  }
+  public async removeUser(institutionId: string, userId: string) {
+    await this.db.userInstitution.deleteMany({
+      where: { userId, institutionId },
     });
   }
   public getMany(query: InstitutionGetMany) {

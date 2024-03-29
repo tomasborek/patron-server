@@ -1,5 +1,3 @@
-import { IExtendedBox } from '@/domain/entities/box.entity';
-
 export interface IBorrowedEvent {
   event: 'borrowed';
   data: {

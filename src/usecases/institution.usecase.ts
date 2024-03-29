@@ -1,6 +1,6 @@
 import { InstitutionCreate, InstitutionCreateStation } from '@/webserver/validators/institution.validator';
 import { UserInstitutionRole } from '@/domain/entities/enums';
-import { AlreadyExistsError, ForbiddenError } from '@/utils/errors';
+import { AlreadyExistsError, BadRequestError, ForbiddenError } from '@/utils/errors';
 import { NotFoundError } from '@/utils/errors';
 import { IInstitutionRepository, IUserRepository } from '@/repositories';
 import Publisher from '@/observers/publisher';
@@ -12,6 +12,7 @@ import { IGetUsersQuery } from '@/domain/entities/institution.entity';
 export interface IInstitutionUsecase {
   create: (data: InstitutionCreate) => Promise<void>;
   addUser: (institutionId: string, email: string, role: string, adminId: string) => Promise<void>;
+  removeUser: (institutionId: string, userId: string, adminId: string) => Promise<void>;
   getStations: (institutionId: string, userId: string) => Promise<IStation[]>;
   generateCode: (institutionId: string) => Promise<string>;
   createStation: (data: InstitutionCreateStation, institutionId: string) => Promise<void>;
@@ -56,6 +57,24 @@ export default class InstitutionUsecase extends Publisher implements IInstitutio
     this.notify({
       event: 'user-added-to-institution',
       data: { user: existingUser, institution },
+    });
+  }
+
+  public async removeUser(institutionId: string, userId: string, adminId: string) {
+    const institution = await this.institutionRepository.getById(institutionId);
+    const user = await this.userRepository.getById(userId);
+    const admin = await this.userRepository.getById(adminId);
+    if (!user) throw new NotFoundError('User not found');
+    if (!institution) throw new NotFoundError('Institution not found');
+    if (!(await this.institutionRepository.isAdmin(adminId, institutionId)) && admin!.role !== 'DEVELOPER')
+      throw new ForbiddenError('Forbidden');
+    if (!(await this.userRepository.isInInstitution(userId, institutionId)))
+      throw new BadRequestError('User not in institution');
+    await this.institutionRepository.removeUser(institutionId, userId);
+
+    this.notify({
+      event: 'user-removed-from-institution',
+      data: { user, institution },
     });
   }
 

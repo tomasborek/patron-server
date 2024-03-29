@@ -16,3 +16,11 @@ export interface IUserAddedToInstitutionEvent {
     institution: IInstitution;
   };
 }
+
+export interface IUserRemovedFromInstitutionEvent {
+  event: 'user-removed-from-institution';
+  data: {
+    user: IUser;
+    institution: IInstitution;
+  };
+}

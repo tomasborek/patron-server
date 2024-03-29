@@ -5,6 +5,7 @@ import { SuccessResponse } from '@/utils/response';
 export interface IInstitutionController {
   create: (req: Request, res: Response) => Promise<void>;
   addUser: (req: Request, res: Response) => Promise<void>;
+  removeUser: (req: Request, res: Response) => Promise<void>;
   getStations: (req: Request, res: Response) => Promise<void>;
   createStation: (req: Request, res: Response) => Promise<void>;
   getUsers: (req: Request, res: Response) => Promise<void>;
@@ -20,6 +21,10 @@ export default class InstitutionController implements IInstitutionController {
   public async addUser(req: Request, res: Response) {
     await this.institutionUsecase.addUser(req.params.institutionId, req.body.email, req.body.role, req.user!.id);
 
+    return new SuccessResponse({ res }).send();
+  }
+  public async removeUser(req: Request, res: Response) {
+    await this.institutionUsecase.removeUser(req.params.institutionId, req.params.userId, req.user!.id);
     return new SuccessResponse({ res }).send();
   }
   public async getStations(req: Request, res: Response) {

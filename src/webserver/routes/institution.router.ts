@@ -31,6 +31,7 @@ export default class InstitutionRouter {
         '/:institutionId/station',
         validate(institutionValidator.createStation),
         controller(this.controller.createStation.bind(this.controller)),
-      );
+      )
+      .delete('/:institutionId/user/:userId', auth, controller(this.controller.removeUser.bind(this.controller)));
   }
 }
