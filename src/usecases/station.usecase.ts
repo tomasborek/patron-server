@@ -50,7 +50,9 @@ export default class StationUsecase extends Publisher implements IStationUsecase
     return reservation.box.localId;
   }
   public async getBoxesStatus(id: string) {
-    const boxes = await this.stationRepository.getSimpleBoxes(id);
+    const institutionName = id.split(':')[0];
+    const stationName = id.split(':')[1];
+    const boxes = await this.stationRepository.getSimpleBoxes(institutionName, stationName);
     return boxes;
   }
   public async borrow(id: string, code: string, boxId: string) {
